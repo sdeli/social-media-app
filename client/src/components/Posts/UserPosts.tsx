@@ -1,4 +1,3 @@
-import { gql } from "@apollo/client";
 import { Avatar, Container, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useEffect, useRef } from "react";
@@ -8,37 +7,6 @@ import { RootState } from "../../store/store";
 import { Post } from "./Post";
 import { useScrollFetchRest } from '../../hooks/useScrollFetchRest';
 import { PostDto } from '../../types';
-
-const QUERY = gql`
-    query ($userId: Int!, $page: Int) {
-        listPosts(userId: $userId, page: $page) {
-            id
-            User {
-                id
-                name
-                picture
-            }
-            content
-            media
-            mediaType
-            likes
-            dislikes
-            lastComment {
-                content
-                media
-                mediaType
-                User {
-                    id
-                    name
-                    picture
-                }
-                createdAt
-            }
-            createdAt
-            hasLiked
-        }
-    }
-`;
 
 interface Props {
   id?: number;
@@ -52,10 +20,6 @@ export const UserPosts = (prop: Props) => {
   const scrollEl = useRef(null);
 
   const { data, refAnchor, noMoreData } = useScrollFetchRest({ userId, scrollEl });
-  // const { data, noMoreData, refAnchor } = useScrollFetch({
-  //     QUERY,
-  //     variables: { userId: id },
-  // });
 
   return (
     <Box maxWidth="sm"

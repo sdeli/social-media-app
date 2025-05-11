@@ -6,7 +6,7 @@ interface Props {
     size?: "small" | "medium" | "large";
     setMediaPath: Dispatch<SetStateAction<string | null>>;
     setMedia: Dispatch<
-        SetStateAction<{ type: string; media: Blob } | null | undefined>
+        SetStateAction<{ type: string; media: File } | null | undefined>
     >;
 }
 

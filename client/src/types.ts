@@ -1,6 +1,12 @@
-export interface SavePostDto {
+export interface GetPostDto {
   page: number,
   user: number
+}
+
+export interface SavePostsDto {
+  user: number
+  content?: string;
+  media?: File,
 }
 
 export interface FriendshipDto {

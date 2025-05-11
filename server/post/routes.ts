@@ -1,5 +1,4 @@
-import { Router } from 'express';
-
+import express from "express";
 import { Sequelize, Op } from "sequelize";
 import { postsPerPage } from "../constants";
 import { Comment } from "../models/Comment";
@@ -8,14 +7,54 @@ import { Friendship } from "../models/Friendship";
 import { Like_Dislike } from "../models/Like_Dislike";
 import { Post } from "../models/Post";
 import { User } from "../models/User";
-import { SavePostDto } from '../dto';
+import { getPostsDto, savePostsDto } from '../dto';
+import multer from "multer";
+import { storeFS } from "../utils/storeFS";
+import { Readable } from "stream";
 
-export const postRouter = Router();
+const upload = multer();
+export const postRouter = express.Router();
+
+postRouter.post("/api/posts", upload.single("media"), async (req, res) => {
+  try {
+    const body = req.body as savePostsDto
+    const user = body.user; // assuming you're using passport
+    const content = body.content;
+    const mediaFile = req.file as Express.Multer.File;
+
+    if (!content && !mediaFile) {
+      return res.status(400).json({ error: "Post must have content or media" });
+    }
+
+    let mediaUrl: string | null = null;
+    let mediaType: string | null = null;
+
+    if (mediaFile) {
+      const stream = Readable.from(mediaFile.buffer);
+      const path = await storeFS({ stream, filename: mediaFile.originalname });
+      mediaUrl = path.path;
+      mediaType = mediaFile.mimetype;
+    }
+
+    const post = await Post.create({
+      postedBy: user,
+      content,
+      media: mediaUrl,
+      mediaType,
+    });
+
+    res.status(201).json(post);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create post" });
+  }
+});
+
 postRouter.get("/api/posts", async (req, res, next) => {
   const params = {
     page: parseInt(req.query.page as string),
     user: parseInt(req.query.user as string)
-  } as SavePostDto;
+  } as getPostsDto;
 
   const { page, user } = params;
   if (page === undefined || user === undefined) {

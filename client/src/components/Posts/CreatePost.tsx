@@ -3,53 +3,39 @@ import {
     Card,
     CardContent,
     Divider,
-    IconButton,
     Modal,
     TextareaAutosize,
 } from "@mui/material";
 import { css } from "@emotion/css";
-import { AddAPhoto } from "@mui/icons-material";
 import { RootState } from "../../store/store";
 import { useSelector } from "react-redux";
-import { gql, useMutation } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ErrorDisplay } from "../ErrorDisplayer";
 import { UploadMedia } from "../UploadMedia";
 import { Media } from "../Media";
-
-const CREATE_POST = gql`
-    mutation ($content: String, $media: Upload) {
-        createPost(content: $content, media: $media) {
-            id
-        }
-    }
-`;
+import { SavePostsDto } from '../../types';
+import { createPost__api } from '../../api/postApi';
 
 export const CreatPost = () => {
-    const [createPost, { data, error, loading, reset }] =
-        useMutation(CREATE_POST);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [content, setContent] = useState<string>("");
-    const [media, setMedia] = useState<{ type: string; media: Blob } | null>();
+    const [media, setMedia] = useState<{ type: string; media: File } | null>();
     const [mediaPath, setMediaPath] = useState<null | string>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const { name } = useSelector((state: RootState) => state.user);
 
-    useEffect(() => {
-        if (loading) return;
-        if (data) {
-            resetForm();
-            setModalOpen(false);
+    const post = async () => {
+        const dto: SavePostsDto = {
+          user: 1
         }
-    }, [loading]);
 
-    const post = () => {
-        reset();
-        createPost({
-            variables: {
-                content,
-                media: media?.media,
-            },
-        });
+        if (media) dto.media = media.media;
+        if (content) dto.content = content;
+        setIsLoading(true);
+        await createPost__api(dto);
+        setIsLoading(false);
+        resetForm();
+        setModalOpen(false);
     };
 
     const resetForm = () => {
@@ -67,7 +53,7 @@ export const CreatPost = () => {
                 sx={{ marginLeft: "auto", display: "block" }}
                 onClick={() => setModalOpen(true)}
             >
-                Create Post
+                Create Post 11111
             </Button>
             <Modal
                 open={modalOpen}
@@ -89,7 +75,7 @@ export const CreatPost = () => {
                         position: "relative",
                     }}
                 >
-                    <h2>Create Post</h2>
+                    <h2>Create Pos 222</h2>
                     <CardContent
                         sx={{
                             overflow: "auto",
@@ -121,12 +107,12 @@ export const CreatPost = () => {
                             marginBottom: "10px",
                         })}
                     >
-                        <ErrorDisplay content={error?.message} />
+                        {/* <ErrorDisplay content={error?.message} /> */}
                         <Button
                             variant="contained"
                             sx={{ width: "calc(90% - 30px)" }}
                             onClick={post}
-                            disabled={loading}
+                            disabled={isLoading}
                         >
                             Post
                         </Button>

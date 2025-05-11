@@ -12,7 +12,7 @@ export const Media = ({
     mediaType,
     mediaPath,
     width,
-    playable = false,
+    playable = true,
 }: Props) => {
     if (!mediaPath) return null;
 
@@ -27,12 +27,12 @@ export const Media = ({
         >
             {mediaPath && mediaType?.includes("video") && (
                 <a href={mediaPath}>
-                    <video src={mediaPath} controls={playable}></video>
+                    <video src={'http://localhost:4000/' + mediaPath} controls={playable}></video>
                 </a>
             )}
             {mediaPath && mediaType?.includes("image") && (
-                <a href={mediaPath}>
-                    <img src={mediaPath} />
+                <a href={'http://localhost:4000/' + mediaPath}>
+                    <img src={'http://localhost:4000/' + mediaPath} />
                 </a>
             )}
         </Box>

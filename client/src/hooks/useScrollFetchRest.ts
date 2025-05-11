@@ -48,13 +48,6 @@ export const useScrollFetchRest = ({
       bottom: window.innerHeight,
     };
 
-    console.log('top ========')
-    console.log(refRect.top);
-    console.log(scrollRect.bottom);
-    console.log(!loading &&
-      !noMoreData &&
-      refRect &&
-      refRect.top >= scrollRect.bottom - 200);
     if (
       !loading &&
       !noMoreData &&
@@ -66,7 +59,6 @@ export const useScrollFetchRest = ({
     }
   };
 
-  // 🆕 Keep fetching until the anchor is near bottom or noMoreData
   const fetchUntilFilled = async () => {
     while (true) {
       const refRect = refAnchor.current?.getBoundingClientRect();
