@@ -159,7 +159,6 @@ export const useScrollFetch = ({
   }, []);
 
   useEffect(() => {
-    console.log('load more');
     loadMore();
   }, [data]);
 

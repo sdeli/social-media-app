@@ -14,7 +14,8 @@ import { sequelize } from "./setup";
 import http from "http";
 import { socketSetup } from "./socket";
 import fs from "fs";
-import { postRouter } from './post/routes';
+import { postRouter } from './routes/post';
+import { friendshipRouter } from './routes/friendship';
 
 let graphqlUploadExpress: any;
 
@@ -55,6 +56,7 @@ app.use("/", express.static("./public/dist"));
 app.use("/public", express.static(process.cwd() + "/public"));
 
 app.use(postRouter);
+app.use(friendshipRouter);
 
 app.get("*", (req, res) => {
   res.writeHead(200, { "Content-Type": "text/html" });

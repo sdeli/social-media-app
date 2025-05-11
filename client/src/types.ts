@@ -9,6 +9,11 @@ export interface SavePostsDto {
   media?: File,
 }
 
+export interface SendFriendshipRequestDto {
+  acceptedBy: number,
+  user: number
+}
+
 export interface FriendshipDto {
   id: number;
   requestedBy: number;

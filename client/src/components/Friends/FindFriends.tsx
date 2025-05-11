@@ -1,6 +1,8 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Avatar, Box, Button, Card, Divider, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import { sendFriendRequest__api } from '../../api/friendshipApi';
+import { SendFriendshipRequestDto } from '../../types';
 
 const SEARCH_FOR_PEOPLE = gql`
     query ($query: String) {
@@ -13,24 +15,11 @@ const SEARCH_FOR_PEOPLE = gql`
     }
 `;
 
-const SEND_REQUEST = gql`
-    mutation ($acceptedBy: Int!) {
-        createFriendRequest(acceptedBy: $acceptedBy) {
-            acceptedBy
-        }
-    }
-`;
-
 export const FindFriends = () => {
   const { refetch, data: data } = useQuery(SEARCH_FOR_PEOPLE, {
     fetchPolicy: "network-only",
   });
   const [query, setQuery] = useState("");
-
-  const [
-    createRequest,
-    { data: friendship, loading: requestLoading, error, called },
-  ] = useMutation(SEND_REQUEST);
 
   const [loadingList, setLoadingList] = useState<number[]>([]);
   const searchHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,19 +31,15 @@ export const FindFriends = () => {
     });
   };
 
-  const sendRequest = (acceptedBy: number) => {
-    createRequest({ variables: { acceptedBy } });
+  const sendRequest = (acceptedBy: number, user: number = 1) => {
+    const dto: SendFriendshipRequestDto = { user, acceptedBy };
     setLoadingList(loadingList.concat(acceptedBy));
+    sendFriendRequest__api(dto).then((friendRequest) => {
+      if (!friendRequest) return;
+      const acceptedBy = friendRequest.acceptedBy;
+      setLoadingList(loadingList.filter((id) => acceptedBy !== id));
+    })
   };
-
-  useEffect(() => {
-    if (requestLoading || !called) return;
-
-    const acceptedBy = friendship?.createFriendRequest?.acceptedBy;
-    setLoadingList(loadingList.filter((id) => acceptedBy !== id));
-
-    refetch({ query });
-  }, [requestLoading]);
 
   return (
     <>
@@ -106,13 +91,7 @@ export const FindFriends = () => {
                   }
                   onClick={() => sendRequest(id)}
                 >
-                  {loadingList.includes(id)
-                    ? "Sending"
-                    : !status
-                      ? "Send Request"
-                      : status.includes("rejected")
-                        ? "Request rejected"
-                        : "Request Sent"}
+                  {loadingList.includes(id) ? "Sending" : !status ? "Send Request" : status.includes("rejected") ? "Request rejected" : "Request Sent"}
                 </Button>
               </Box>
             </Card>

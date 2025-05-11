@@ -79,8 +79,7 @@ postRouter.get("/api/posts", async (req, res, next) => {
   const friendIds = friends.map((friend) =>
     user === friend.requestedBy ? friend.acceptedBy : friend.requestedBy
   );
-  console.log('postsPerPage')
-  console.log(page * postsPerPage);
+
   const posts = await Post.findAll({
     // where: {
     //   postedBy: {
@@ -92,8 +91,7 @@ postRouter.get("/api/posts", async (req, res, next) => {
     limit: postsPerPage,
     offset: page * postsPerPage,
   });
-  console.log('posts =====')
-  console.log(posts);
+
   const dtos = [];
 
   for (let i = 0; i < posts.length; i++) {

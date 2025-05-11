@@ -19,8 +19,6 @@ export const useScrollFetchRest = ({
   const refAnchor = useRef<HTMLElement | null>(null);
 
   const fetchData = async () => {
-    console.log('loading ============')
-    console.log(loading);
     if (loading || noMoreData) return;
     setLoading(true);
 
@@ -33,11 +31,9 @@ export const useScrollFetchRest = ({
         setData((prev) => [...prev, ...newData]);
         pageRef.current += 1;
       }
-      // debugger
     } catch (err) {
       console.error("Failed to fetch posts:", err);
     }
-    console.log('done');
     setLoading(false);
   };
 
@@ -54,7 +50,6 @@ export const useScrollFetchRest = ({
       refRect &&
       refRect.top >= scrollRect.bottom - 200
     ) {
-      console.log('go');
       fetchData();
     }
   };
@@ -66,13 +61,9 @@ export const useScrollFetchRest = ({
         top: 0,
         bottom: window.innerHeight,
       };
-      // debugger
       if (noMoreData || !refRect || refRect.top >= scrollRect.bottom - 200) {
-        console.log('break');
-        // debugger
         break;
       } else {
-        // debugger
         await fetchData();
       }
     }
