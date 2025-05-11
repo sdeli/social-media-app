@@ -9,240 +9,240 @@ import { User } from "../models/User";
 import { storeFS } from "../utils/storeFS";
 
 export const createPost = async (
-    {
-        content,
-        media,
-    }: {
-        content: string;
-        media?: any;
-    },
-    { user }: { user: number }
+  {
+    content,
+    media,
+  }: {
+    content: string;
+    media?: any;
+  },
+  { user }: { user: number }
 ) => {
-    if (!content && !media) throw new Error("can not have an empty post");
+  if (!content && !media) throw new Error("can not have an empty post");
 
-    const postedBy = user;
+  const postedBy = user;
 
-    let mediaUrl = null,
-        mediaType = null;
-    if (media) {
-        const { filename, createReadStream, mimetype } = await media.promise;
-        if (!mimetype.includes("image") && !mimetype.includes("video"))
-            throw new Error("can only post image or video");
-        const stream = createReadStream();
-        const path = await storeFS({ stream, filename });
-        mediaUrl = path.path;
-        mediaType = mimetype;
-    }
+  let mediaUrl = null,
+    mediaType = null;
+  if (media) {
+    const { filename, createReadStream, mimetype } = await media.promise;
+    if (!mimetype.includes("image") && !mimetype.includes("video"))
+      throw new Error("can only post image or video");
+    const stream = createReadStream();
+    const path = await storeFS({ stream, filename });
+    mediaUrl = path.path;
+    mediaType = mimetype;
+  }
 
-    const post = await Post.create({
-        postedBy,
-        content,
-        media: mediaUrl,
-        mediaType,
-    });
+  const post = await Post.create({
+    postedBy,
+    content,
+    media: mediaUrl,
+    mediaType,
+  });
 
-    return post;
+  return post;
 };
 
 export const fetchTimeline = async (
-    { page = 0 }: { page: number },
-    { user }: { user: number }
+  { page = 0 }: { page: number },
+  { user }: { user: number }
 ) => {
-    const friends = await Friendship.findAll({
-        where: Sequelize.and(
-            {
-                status: FriendshipStatus.Accepted,
-            },
-            Sequelize.or(
-                {
-                    requestedBy: user,
-                },
-                { acceptedBy: user }
-            )
-        ),
-    });
+  const friends = await Friendship.findAll({
+    where: Sequelize.and(
+      {
+        status: FriendshipStatus.Accepted,
+      },
+      Sequelize.or(
+        {
+          requestedBy: user,
+        },
+        { acceptedBy: user }
+      )
+    ),
+  });
 
-    const friendIds = friends.map((friend) =>
-        user === friend.requestedBy ? friend.acceptedBy : friend.requestedBy
-    );
+  const friendIds = friends.map((friend) =>
+    user === friend.requestedBy ? friend.acceptedBy : friend.requestedBy
+  );
 
-    const posts = (await Post.findAll({
+  const posts = (await Post.findAll({
+    where: {
+      postedBy: {
+        [Op.in]: friendIds,
+      },
+    },
+    include: User,
+    order: [["createdAt", "DESC"]],
+    limit: postsPerPage,
+    offset: page * postsPerPage,
+  })) as any[];
+
+  return posts.map(
+    async ({
+      id,
+      postedBy,
+      content,
+      media,
+      mediaType,
+      likes,
+      dislikes,
+      createdAt,
+      User: UserField,
+    }) => {
+      const lastComment = await Comment.findOne({
         where: {
-            postedBy: {
-                [Op.in]: friendIds,
-            },
+          postId: id,
         },
         include: User,
         order: [["createdAt", "DESC"]],
-        limit: postsPerPage,
-        offset: page * postsPerPage,
-    })) as any[];
+      });
 
-    return posts.map(
-        async ({
-            id,
-            postedBy,
-            content,
-            media,
-            mediaType,
-            likes,
-            dislikes,
-            createdAt,
-            User: UserField,
-        }) => {
-            const lastComment = await Comment.findOne({
-                where: {
-                    postId: id,
-                },
-                include: User,
-                order: [["createdAt", "DESC"]],
-            });
+      const like = await Like_Dislike.findOne({
+        where: { userId: user, postId: id },
+      });
 
-            const like = await Like_Dislike.findOne({
-                where: { userId: user, postId: id },
-            });
-
-            return {
-                id,
-                postedBy,
-                content,
-                media,
-                mediaType,
-                likes,
-                dislikes,
-                lastComment,
-                User: UserField,
-                createdAt,
-                hasLiked: like?.isLike,
-            };
-        }
-    );
+      return {
+        id,
+        postedBy,
+        content,
+        media,
+        mediaType,
+        likes,
+        dislikes,
+        lastComment,
+        User: UserField,
+        createdAt,
+        hasLiked: like?.isLike,
+      };
+    }
+  );
 };
 
 export async function likePost(
-    {
-        postId,
-        isLike = true,
-    }: {
-        postId: number;
-        isLike: boolean;
-    },
-    { user }: { user: number }
+  {
+    postId,
+    isLike = true,
+  }: {
+    postId: number;
+    isLike: boolean;
+  },
+  { user }: { user: number }
 ) {
-    const post = await Post.findByPk(postId);
+  const post = await Post.findByPk(postId);
 
-    if (!post) throw new Error("post doesn't exist");
+  if (!post) throw new Error("post doesn't exist");
 
-    const like_dislike = await Like_Dislike.findOne({
-        where: {
-            postId,
-            userId: user,
-        },
+  const like_dislike = await Like_Dislike.findOne({
+    where: {
+      postId,
+      userId: user,
+    },
+  });
+
+  if (!like_dislike) {
+    await Like_Dislike.create({
+      postId,
+      isLike,
+      userId: user,
     });
 
-    if (!like_dislike) {
-        await Like_Dislike.create({
-            postId,
-            isLike,
-            userId: user,
-        });
-
-        isLike
-            ? await post.increment("likes")
-            : await post.increment("dislikes");
+    isLike
+      ? await post.increment("likes")
+      : await post.increment("dislikes");
+  } else {
+    if (isLike === like_dislike.isLike) {
+      like_dislike.destroy();
+      isLike
+        ? await post.decrement("likes")
+        : await post.decrement("dislikes");
     } else {
-        if (isLike === like_dislike.isLike) {
-            like_dislike.destroy();
-            isLike
-                ? await post.decrement("likes")
-                : await post.decrement("dislikes");
-        } else {
-            await like_dislike.update({ isLike });
-            if (isLike) {
-                await post.increment("likes");
-                await post.decrement("dislikes");
-            } else {
-                await post.increment("dislikes");
-                await post.decrement("likes");
-            }
-        }
+      await like_dislike.update({ isLike });
+      if (isLike) {
+        await post.increment("likes");
+        await post.decrement("dislikes");
+      } else {
+        await post.increment("dislikes");
+        await post.decrement("likes");
+      }
     }
-    return await post.reload();
+  }
+  return await post.reload();
 }
 
 export const listPosts = async (
-    { userId, page = 0 }: { userId: number; page: number },
-    { user }: { user: number }
+  { userId, page = 0 }: { userId: number; page: number },
+  { user }: { user: number }
 ) => {
-    if (userId !== user) {
-        const friendship = await Friendship.findOne({
-            where: Sequelize.and(
-                {
-                    status: FriendshipStatus.Accepted,
-                },
-                Sequelize.or(
-                    {
-                        requestedBy: user,
-                        acceptedBy: userId,
-                    },
-                    {
-                        acceptedBy: user,
-                        requestedBy: userId,
-                    }
-                )
-            ),
-        });
+  if (userId !== user) {
+    const friendship = await Friendship.findOne({
+      where: Sequelize.and(
+        {
+          status: FriendshipStatus.Accepted,
+        },
+        Sequelize.or(
+          {
+            requestedBy: user,
+            acceptedBy: userId,
+          },
+          {
+            acceptedBy: user,
+            requestedBy: userId,
+          }
+        )
+      ),
+    });
 
-        if (!friendship) throw new Error("not authorized to see the posts");
-    }
+    if (!friendship) throw new Error("not authorized to see the posts");
+  }
 
-    const posts = (await Post.findAll({
+  const posts = (await Post.findAll({
+    where: {
+      postedBy: userId,
+    },
+    include: User,
+    order: [["createdAt", "DESC"]],
+    limit: postsPerPage,
+    offset: page * postsPerPage,
+  })) as any[];
+
+  return posts.map(
+    async ({
+      id,
+      postedBy,
+      content,
+      media,
+      mediaType,
+      likes,
+      dislikes,
+      createdAt,
+      User: UserField,
+    }) => {
+      const lastComment = await Comment.findOne({
         where: {
-            postedBy: userId,
+          postId: id,
         },
         include: User,
         order: [["createdAt", "DESC"]],
-        limit: postsPerPage,
-        offset: page * postsPerPage,
-    })) as any[];
+      });
 
-    return posts.map(
-        async ({
-            id,
-            postedBy,
-            content,
-            media,
-            mediaType,
-            likes,
-            dislikes,
-            createdAt,
-            User: UserField,
-        }) => {
-            const lastComment = await Comment.findOne({
-                where: {
-                    postId: id,
-                },
-                include: User,
-                order: [["createdAt", "DESC"]],
-            });
+      const like = await Like_Dislike.findOne({
+        where: { userId: user, postId: id },
+      });
 
-            const like = await Like_Dislike.findOne({
-                where: { userId: user, postId: id },
-            });
-
-            return {
-                id,
-                postedBy,
-                content,
-                media,
-                mediaType,
-                likes,
-                dislikes,
-                lastComment,
-                User: UserField,
-                createdAt,
-                hasLiked: like?.isLike,
-            };
-        }
-    );
+      return {
+        id,
+        postedBy,
+        content,
+        media,
+        mediaType,
+        likes,
+        dislikes,
+        lastComment,
+        User: UserField,
+        createdAt,
+        hasLiked: like?.isLike,
+      };
+    }
+  );
 };

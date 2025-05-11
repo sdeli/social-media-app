@@ -4,7 +4,7 @@ import messageSlice from "./messageSlice";
 import userSlice from "./userSlice";
 
 export const store = configureStore({
-    reducer: { user: userSlice, message: messageSlice, call: callSlice },
+  reducer: { user: userSlice, message: messageSlice, call: callSlice },
 });
 
 export type RootState = ReturnType<typeof store.getState>;

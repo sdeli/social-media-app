@@ -2,39 +2,39 @@ import { css } from "@emotion/react";
 import { Box } from "@mui/material";
 
 interface Props {
-    mediaType: string | undefined;
-    mediaPath: string | null | undefined;
-    width?: string;
-    playable?: boolean;
+  mediaType: string | undefined;
+  mediaPath: string | null | undefined;
+  width?: string;
+  playable?: boolean;
 }
 
 export const Media = ({
-    mediaType,
-    mediaPath,
-    width,
-    playable = true,
+  mediaType,
+  mediaPath,
+  width,
+  playable = true,
 }: Props) => {
-    if (!mediaPath) return null;
+  if (!mediaPath) return null;
 
-    return (
-        <Box
-            sx={{
-                width: width || "100%",
-                maxHeight: "300px",
-                overflow: "hidden",
-                "> a > img,video": { width: "100%" },
-            }}
-        >
-            {mediaPath && mediaType?.includes("video") && (
-                <a href={mediaPath}>
-                    <video src={'http://localhost:4000/' + mediaPath} controls={playable}></video>
-                </a>
-            )}
-            {mediaPath && mediaType?.includes("image") && (
-                <a href={'http://localhost:4000/' + mediaPath}>
-                    <img src={'http://localhost:4000/' + mediaPath} />
-                </a>
-            )}
-        </Box>
-    );
+  return (
+    <Box
+      sx={{
+        width: width || "100%",
+        maxHeight: "300px",
+        overflow: "hidden",
+        "> a > img,video": { width: "100%" },
+      }}
+    >
+      {mediaPath && mediaType?.includes("video") && (
+        <a href={mediaPath}>
+          <video src={'http://localhost:4000/' + mediaPath} controls={playable}></video>
+        </a>
+      )}
+      {mediaPath && mediaType?.includes("image") && (
+        <a href={'http://localhost:4000/' + mediaPath}>
+          <img src={'http://localhost:4000/' + mediaPath} />
+        </a>
+      )}
+    </Box>
+  );
 };

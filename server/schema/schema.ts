@@ -1,50 +1,50 @@
 import { buildSchema, GraphQLObjectType, GraphQLString } from "graphql";
 import {
-    createPost,
-    fetchTimeline,
-    likePost,
-    listPosts,
+  createPost,
+  fetchTimeline,
+  likePost,
+  listPosts,
 } from "./postResolvers";
 import {
-    createFriendRequest,
-    acceptFriendRequest,
-    listFriends,
-    searchForPeople,
-    listFriendRequests,
+  createFriendRequest,
+  acceptFriendRequest,
+  listFriends,
+  searchForPeople,
+  listFriendRequests,
 } from "./friendshipResolvers";
 import { createComment, getComments } from "./commentResolvers";
 import {
-    createMessage,
-    getTotalUnread,
-    listMessages,
-    listRecentMessages,
-    setAllAsRead,
-    setAsRead,
+  createMessage,
+  getTotalUnread,
+  listMessages,
+  listRecentMessages,
+  setAllAsRead,
+  setAsRead,
 } from "./messageResolvers";
 import { getCurrentUser, updateProfile } from "./userResolvers";
 
 const UserType = new GraphQLObjectType({
-    name: "User",
-    fields: () => ({
-        name: { type: GraphQLString },
-    }),
+  name: "User",
+  fields: () => ({
+    name: { type: GraphQLString },
+  }),
 });
 
 const RootQuery = new GraphQLObjectType({
-    name: "RootQueryType",
-    fields: {
-        user: {
-            type: UserType,
-            resolve: () => ({
-                name: "Ton y stark",
-            }),
-        },
+  name: "RootQueryType",
+  fields: {
+    user: {
+      type: UserType,
+      resolve: () => ({
+        name: "Ton y stark",
+      }),
     },
+  },
 });
 
 const mutation = new GraphQLObjectType({
-    name: "mutation",
-    fields: {},
+  name: "mutation",
+  fields: {},
 });
 
 export const schema = buildSchema(`
@@ -160,23 +160,23 @@ type Mutation{
 `);
 
 export const root: any = {
-    createPost,
-    fetchTimeline,
-    createFriendRequest,
-    acceptFriendRequest,
-    likePost,
-    createComment,
-    listFriends,
-    createMessage,
-    setAsRead,
-    setAllAsRead,
-    listRecentMessages,
-    listMessages,
-    searchForPeople,
-    listFriendRequests,
-    listPosts,
-    updateProfile,
-    getCurrentUser,
-    getComments,
-    getTotalUnread,
+  createPost,
+  fetchTimeline,
+  createFriendRequest,
+  acceptFriendRequest,
+  likePost,
+  createComment,
+  listFriends,
+  createMessage,
+  setAsRead,
+  setAllAsRead,
+  listRecentMessages,
+  listMessages,
+  searchForPeople,
+  listFriendRequests,
+  listPosts,
+  updateProfile,
+  getCurrentUser,
+  getComments,
+  getTotalUnread,
 };
