@@ -12,8 +12,6 @@ import { SavePostDto } from '../dto';
 
 export const postRouter = Router();
 postRouter.get("/api/posts", async (req, res, next) => {
-  console.log('query ==========')
-
   const params = {
     page: parseInt(req.query.page as string),
     user: parseInt(req.query.user as string)
@@ -42,19 +40,21 @@ postRouter.get("/api/posts", async (req, res, next) => {
   const friendIds = friends.map((friend) =>
     user === friend.requestedBy ? friend.acceptedBy : friend.requestedBy
   );
-
+  console.log('postsPerPage')
+  console.log(page * postsPerPage);
   const posts = await Post.findAll({
-    where: {
-      postedBy: {
-        [Op.in]: friendIds,
-      },
-    },
+    // where: {
+    //   postedBy: {
+    //     [Op.in]: friendIds,
+    //   },
+    // },
     include: User,
     order: [["createdAt", "DESC"]],
     limit: postsPerPage,
     offset: page * postsPerPage,
   });
-
+  console.log('posts =====')
+  console.log(posts);
   const dtos = [];
 
   for (let i = 0; i < posts.length; i++) {

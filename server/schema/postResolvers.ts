@@ -97,7 +97,7 @@ export const fetchTimeline = async (
                 include: User,
                 order: [["createdAt", "DESC"]],
             });
-            
+
             const like = await Like_Dislike.findOne({
                 where: { userId: user, postId: id },
             });

@@ -7,8 +7,6 @@ export const fetchTimeline__api = async (dto: SavePostDto) => {
   const url = `${urlBase}?page=${dto.page}&user=${dto.user}`
   try {
     const response = await httpClient.get<PostDto[]>(url);
-    console.log('response')
-    console.log(response);
     return response.data as PostDto[];
   } catch (error: any) {
     return false;

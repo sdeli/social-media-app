@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 import { Avatar, Container, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useScrollFetch } from "../../hooks/useScrollFetch";
 import { RootState } from "../../store/store";
@@ -49,21 +49,14 @@ interface Props {
 export const UserPosts = (prop: Props) => {
   const { id, name, picture } = useSelector((state: RootState) => state.user);
   const userId = id || 1;
-  const scrollEl = useRef(null);
-
-  const { data, refAnchor, noMoreData } = useScrollFetchRest({ userId, scrollEl });
+  const { data, refAnchor, noMoreData } = useScrollFetchRest({ userId });
   // const { data, noMoreData, refAnchor } = useScrollFetch({
   //     QUERY,
   //     variables: { userId: id },
   // });
 
   return (
-    <Box maxWidth="sm"
-      style={{
-        minHeight: '100vh',
-      }}
-      ref={scrollEl}
-    >
+    <Box maxWidth="sm">
       <Box
         sx={{
           backgroundColor: "background.paper",
@@ -81,8 +74,8 @@ export const UserPosts = (prop: Props) => {
         </Typography>
       </Box>
       {data &&
-        data.map((post: PostDto, i) => (
-          <Post post={post} key={i} />
+        data.map((post: PostDto) => (
+          <Post post={post} key={post.id} />
         ))}
       {noMoreData ? (
         <Typography textAlign="center">

@@ -75,7 +75,7 @@ function App() {
                 <ThemeProvider theme={theme}>
                     <Routes>
                         <Route path="/" element={<MainLayout />}>
-                            <Route index element={<Timeline />}></Route>
+                            <Route index element={<Timeline userId={1} />}></Route>
                             <Route path="/profile" element={<EditProfile />} />
                             <Route path="/account" element={<Account />}>
                                 <Route index element={<UserPosts />} />

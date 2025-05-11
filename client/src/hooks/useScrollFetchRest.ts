@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { PostDto, SavePostDto } from "../types";
+import { PostDto } from "../types";
 import { fetchTimeline__api } from "../api/postApi";
 
 export const useScrollFetchRest = ({
@@ -12,28 +12,32 @@ export const useScrollFetchRest = ({
   onWindow?: boolean;
 }) => {
   const [data, setData] = useState<PostDto[]>([]);
-  const [page, setPage] = useState(0);
+  const pageRef = useRef(0);
   const [loading, setLoading] = useState(false);
+  const [dataInited, setDataInited] = useState(false);
   const [noMoreData, setNoMoreData] = useState(false);
-
   const refAnchor = useRef<HTMLElement | null>(null);
 
   const fetchData = async () => {
+    console.log('loading ============')
+    console.log(loading);
     if (loading || noMoreData) return;
     setLoading(true);
 
     try {
-      const newData = await fetchTimeline__api({ page, user: userId });
+      const newData = await fetchTimeline__api({ page: pageRef.current, user: userId });
+
       if (!newData || newData.length === 0) {
         setNoMoreData(true);
       } else {
         setData((prev) => [...prev, ...newData]);
-        setPage((prev) => prev + 1);
+        pageRef.current += 1;
       }
+      // debugger
     } catch (err) {
       console.error("Failed to fetch posts:", err);
     }
-
+    console.log('done');
     setLoading(false);
   };
 
@@ -44,28 +48,69 @@ export const useScrollFetchRest = ({
       bottom: window.innerHeight,
     };
 
+    console.log('top ========')
+    console.log(refRect.top);
+    console.log(scrollRect.bottom);
+    console.log(!loading &&
+      !noMoreData &&
+      refRect &&
+      refRect.top >= scrollRect.bottom - 200);
     if (
       !loading &&
       !noMoreData &&
       refRect &&
-      refRect?.top < scrollRect.bottom + 200
+      refRect.top >= scrollRect.bottom - 200
     ) {
+      console.log('go');
       fetchData();
     }
   };
 
+  // 🆕 Keep fetching until the anchor is near bottom or noMoreData
+  const fetchUntilFilled = async () => {
+    while (true) {
+      const refRect = refAnchor.current?.getBoundingClientRect();
+      const scrollRect = scrollEl?.current?.getBoundingClientRect() || {
+        top: 0,
+        bottom: window.innerHeight,
+      };
+      // debugger
+      if (noMoreData || !refRect || refRect.top >= scrollRect.bottom - 200) {
+        console.log('break');
+        // debugger
+        break;
+      } else {
+        // debugger
+        await fetchData();
+      }
+    }
+  };
+
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!dataInited) {
+      fetchUntilFilled();
+      setDataInited(true);
+    }
+  }, [refAnchor.current]);
 
   useEffect(() => {
     const el = onWindow ? window : scrollEl?.current;
     if (!el) return;
 
-    const scrollListener = () => loadMore();
+    let debounceTimeout: any;
 
-    el.addEventListener("scroll", scrollListener);
-    return () => el.removeEventListener("scroll", scrollListener);
+    const debouncedScrollListener = () => {
+      clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(() => {
+        loadMore();
+      }, 200);
+    };
+
+    el.addEventListener("scroll", debouncedScrollListener);
+    return () => {
+      clearTimeout(debounceTimeout);
+      el.removeEventListener("scroll", debouncedScrollListener);
+    };
   }, [scrollEl?.current, loading, noMoreData]);
 
   return {
