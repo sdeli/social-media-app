@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.ts",
     "scripts": {
-        "start": "nodemon index"
+        "start": "nodemon ./dist/index"
     },
     "keywords": [],
     "author": "",
@@ -30,6 +30,8 @@
         "passport": "^0.6.0",
         "passport-jwt": "^4.0.1",
         "passport-local": "^1.0.0",
+        "pg": "^8.15.6",
+        "pg-hstore": "^2.3.4",
         "sequelize": "^6.28.2",
         "sequelize-cursor-pagination": "^3.4.0",
         "socket.io": "^4.6.1",

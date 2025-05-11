@@ -14,6 +14,7 @@ import { sequelize } from "./setup";
 import http from "http";
 import { socketSetup } from "./socket";
 import fs from "fs";
+import { postRouter } from './post/routes';
 
 let graphqlUploadExpress: any;
 
@@ -22,7 +23,9 @@ dotenv.config();
 require("./setup");
 const app = express();
 export const httpServer = http.createServer(app);
-
+app.get('/ping', (req, res) => {
+  res.send('pong');
+});
 app.use(
   cors({
     credentials: true,
@@ -50,6 +53,8 @@ app.use(bodyParser.json());
 
 app.use("/", express.static("./public/dist"));
 app.use("/public", express.static("./public"));
+
+app.use(postRouter);
 
 app.get("*", (req, res) => {
   res.writeHead(200, { "Content-Type": "text/html" });

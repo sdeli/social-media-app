@@ -61,7 +61,8 @@ export const useScrollFetch = ({
             ...variables,
         },
     });
-
+    // console.log('data =========')
+    // console.log(data);
     const refAnchor = useRef<HTMLElement | null>(null);
     const refAnchor2 = useRef<HTMLElement | null>(null);
 
@@ -97,6 +98,8 @@ export const useScrollFetch = ({
                 fetchRef.current.isNextPage = !scrollUp;
 
                 fetchMore({}).then((value) => {
+                  console.log('value =====')
+                  console.log(value);
                     fetchRef.current.loading = false;
                     const list = Object.values(value.data)[0] as any;
 
@@ -122,7 +125,8 @@ export const useScrollFetch = ({
         ) {
             fetchMore({
                 variables: { page: fetchRef.current.page },
-            }).then((value) => {
+            }).then((value) => {  
+              console.log('fetchmore 2');
                 if (mergeData) {
                     const list = Object.values(value.data)[0] as [];
                     if (list?.length === 0) {
@@ -148,7 +152,7 @@ export const useScrollFetch = ({
     useEffect(() => {
         if (onWindow) {
             window.addEventListener("scroll", loadMore);
-
+            console.log('onwindow');
             fetch();
             fetchRef.current.loading = true;
             fetchRef.current.scrollY = window.scrollY;
@@ -157,6 +161,7 @@ export const useScrollFetch = ({
     }, []);
 
     useEffect(() => {
+      console.log('load more');
         loadMore();
     }, [data]);
 
@@ -164,7 +169,7 @@ export const useScrollFetch = ({
         if (!scrollEl?.current) return;
         scrollEl.current.addEventListener("scroll", loadMore);
         fetchRef.current.scrollY = scrollEl?.current?.scrollTop;
-
+        console.log('current');
         fetch();
 
         return () => scrollEl?.current?.removeEventListener("scroll", loadMore);

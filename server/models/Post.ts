@@ -11,6 +11,8 @@ export class Post extends Model {
     declare mediaType?: string;
     declare likes: number;
     declare dislikes: number;
+    declare createdAt: string;
+    declare updatedAt: string;
 }
 
 Post.init(

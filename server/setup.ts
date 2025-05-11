@@ -1,37 +1,25 @@
-import { createConnection } from "mysql2";
 import { Sequelize } from "sequelize";
 require("dotenv").config();
 
-const mysql = createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-});
-
 export const sequelize = new Sequelize(
-  "social_media",
+  "berlin-2",
   process.env.DB_USER!,
   process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
-    dialect: "mysql",
+    dialect: "postgres",
     logging: false,
   }
 );
 
-mysql.query(`create database if not exists social_media`, (err) => {
-  if (err) throw err;
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('PostgreSQL connection established successfully.');
 
-  (async () => {
-    try {
-      await sequelize.authenticate();
-      await sequelize.sync();
-
-      console.log("MySql DB connected successfully");
-    } catch (e) {
-      console.log(e);
-    }
-  })();
-});
-
-mysql.end();
+    await sequelize.sync(); // Synchronize models with the database
+    console.log('Database synchronized.');
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
+})();
