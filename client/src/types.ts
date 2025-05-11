@@ -14,6 +14,11 @@ export interface SendFriendshipRequestDto {
   user: number
 }
 
+export interface GetFriendshipsStatusDto {
+  query: string,
+  user: number
+}
+
 export interface FriendshipDto {
   id: number;
   requestedBy: number;
@@ -47,6 +52,9 @@ export interface UserDto {
   email: string;
   password: string;
   picture: string | null;
+}
+export interface FriendShipStatusDto extends UserDto {
+  status: FriendshipStatus
 }
 
 export interface MessageDto {

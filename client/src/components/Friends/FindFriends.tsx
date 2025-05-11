@@ -1,34 +1,25 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
 import { Avatar, Box, Button, Card, Divider, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { sendFriendRequest__api } from '../../api/friendshipApi';
-import { SendFriendshipRequestDto } from '../../types';
-
-const SEARCH_FOR_PEOPLE = gql`
-    query ($query: String) {
-        searchForPeople(query: $query) {
-            id
-            name
-            picture
-            status
-        }
-    }
-`;
+import { getFriendshipStatuses__api, sendFriendRequest__api } from '../../api/friendshipApi';
+import { FriendShipStatusDto, SendFriendshipRequestDto } from '../../types';
 
 export const FindFriends = () => {
-  const { refetch, data: data } = useQuery(SEARCH_FOR_PEOPLE, {
-    fetchPolicy: "network-only",
-  });
+  const [data, setData] = useState<FriendShipStatusDto[]>([]);
   const [query, setQuery] = useState("");
 
   const [loadingList, setLoadingList] = useState<number[]>([]);
+
   const searchHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoadingList([]);
+
     const query = e.target.value;
     setQuery(query);
-    refetch({
-      query,
-    });
+
+    getFriendshipStatuses__api({ query, user: 1 })
+      .then((fStatus) => {
+        if (!fStatus) return;
+        setData(fStatus);
+      })
   };
 
   const sendRequest = (acceptedBy: number, user: number = 1) => {
@@ -41,6 +32,53 @@ export const FindFriends = () => {
     })
   };
 
+  useEffect(() => {
+    getFriendshipStatuses__api({ query, user: 1 })
+      .then((fStatus) => {
+        if (!fStatus) return;
+        setData(fStatus);
+      })
+  }, [query])
+
+  function possibleFriendsList() {
+    return data.map(({ id, name, picture, status }) => (
+      <Card
+        elevation={3}
+        key={id}
+        sx={{
+          p: 4,
+          display: "flex",
+          alignItems: "center",
+          minWidth: "300px",
+          my: 1,
+        }}
+      >
+        {picture &&
+          <Avatar src={picture} />
+        }
+        <Box marginLeft="auto">
+          <Typography textAlign="center" mb={1}>
+            {name}
+          </Typography>
+          <Button
+            variant="contained"
+            size="small"
+            disabled={!!status || loadingList.includes(id)}
+            onClick={() => sendRequest(id)}
+          >
+            {loadingList.includes(id)
+              ? "Sending"
+              : !status
+                ? "Send Request"
+                : status.includes("rejected")
+                  ? "Request rejected"
+                  : "Request Sent"}
+          </Button>
+        </Box>
+      </Card>
+    ));
+  }
+
   return (
     <>
       <input
@@ -50,53 +88,13 @@ export const FindFriends = () => {
       />
       <Divider sx={{ marginBlock: 2 }} />
       <Box display="flex" alignItems="center" flexDirection="column">
-        {!data?.searchForPeople?.length && (
+        {!data.length && (
           <Typography textAlign={"center"} marginTop={2}>
             No results
           </Typography>
         )}
-        {data?.searchForPeople?.map(
-          ({
-            id,
-            name,
-            picture,
-            status,
-          }: {
-            id: number;
-            name: string;
-            picture: string;
-            status: string;
-          }) => (
-            <Card
-              elevation={3}
-              key={id}
-              sx={{
-                p: 4,
-                display: "flex",
-                alignItems: "center",
-                minWidth: "300px",
-                my: 1,
-              }}
-            >
-              <Avatar src={picture} />
-              <Box marginLeft="auto">
-                <Typography textAlign="center" mb={1}>
-                  {name}
-                </Typography>
-                <Button
-                  variant="contained"
-                  size="small"
-                  disabled={
-                    !!status || loadingList.includes(id)
-                  }
-                  onClick={() => sendRequest(id)}
-                >
-                  {loadingList.includes(id) ? "Sending" : !status ? "Send Request" : status.includes("rejected") ? "Request rejected" : "Request Sent"}
-                </Button>
-              </Box>
-            </Card>
-          )
-        )}
+        {possibleFriendsList()}
+
       </Box>
     </>
   );
