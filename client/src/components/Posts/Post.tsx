@@ -25,6 +25,8 @@ import { LikeDislike } from "../LikeDislike";
 import { LoadMore } from "../LoadMore";
 import { Media } from "../Media";
 import { UserAvatar } from "../UserAvatar";
+import { likePost__api } from '../../api/postApi';
+import { LikePostsDto } from '../../types';
 
 export interface UserData {
   id: number;
@@ -58,14 +60,6 @@ const GET_COMMENTS = gql`
                 picture
             }
             createdAt
-        }
-    }
-`;
-
-const LIKE_POST = gql`
-    mutation ($isLike: Boolean, $postId: Int!) {
-        likePost(postId: $postId, isLike: $isLike) {
-            id
         }
     }
 `;
@@ -105,28 +99,17 @@ export const Post = ({ post }: { post: Post }) => {
   const [dislikeCount, setDislikeCount] = useState(post.dislikes);
 
   const [hasLiked, setHasLiked] = useState<boolean | null>(post.hasLiked);
-  const [likePost] = useMutation(LIKE_POST);
 
   const likeHandler = (isLike: boolean) => {
-    likePost({ variables: { postId: post.id, isLike } });
-
-    if (isLike === hasLiked) {
-      setHasLiked(null);
-      isLike
-        ? setLikeCount(likeCount - 1)
-        : setDislikeCount(dislikeCount - 1);
-    } else {
-      setHasLiked(isLike);
-
-      if (hasLiked !== null)
-        isLike
-          ? setDislikeCount(dislikeCount - 1)
-          : setLikeCount(likeCount - 1);
-
-      isLike
-        ? setLikeCount(likeCount + 1)
-        : setDislikeCount(dislikeCount + 1);
-    }
+    // likePost({ variables: { postId: post.id, isLike } });
+    const dto: LikePostsDto = { isLike, postId: post.id, user: 1 };
+    likePost__api(dto).then((post) => {
+      if (post) {
+        setHasLiked(post.hasLiked || null)
+        setLikeCount(post.likes)
+        setDislikeCount(post.dislikes || 0)
+      }
+    })
   };
 
   const viewMoreComments = () => {
@@ -135,9 +118,7 @@ export const Post = ({ post }: { post: Post }) => {
   };
 
   return (
-    <likeContext.Provider
-      value={{ likeCount, dislikeCount, hasLiked, likeHandler }}
-    >
+    <likeContext.Provider value={{ likeCount, dislikeCount, hasLiked, likeHandler }}>
       <Modal open={open} onClose={(_) => setOpen(false)}>
         <Container
           maxWidth="sm"

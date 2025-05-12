@@ -1,4 +1,4 @@
-export interface getPostsDto {
+export interface GetPostsDto {
   page: number,
   user: number
 }
@@ -15,5 +15,11 @@ export interface SendFriendshipRequestDto {
 
 export interface GetFriendshipsStatusDto {
   query: string,
+  user: number
+}
+
+export interface LikePostsDto {
+  postId: number,
+  isLike: boolean,
   user: number
 }

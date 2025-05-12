@@ -1,7 +1,7 @@
-import { GetPostDto, PostDto, SavePostsDto } from '../types';
+import { GetPostDto, LikePostsDto, PostDto, SavePostsDto } from '../types';
 import { createQueryString, httpClient } from './httpClient';
 
-const urlBase = '/api/posts'
+const urlBase = '/api/post'
 
 export const fetchTimeline__api = async (dto: GetPostDto) => {
   const url = `${urlBase}?page=${dto.page}&user=${dto.user}`
@@ -22,7 +22,7 @@ export const createPost__api = async (dto: SavePostsDto) => {
   if (dto.media) formData.append("media", dto.media);
 
   try {
-    const res = await httpClient.post("/api/posts", formData, {
+    const res = await httpClient.post("/api/post", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -34,3 +34,14 @@ export const createPost__api = async (dto: SavePostsDto) => {
     return false
   }
 }
+
+export const likePost__api = async (dto: LikePostsDto) => {
+  const url = `${urlBase}/like`
+  try {
+    const response = await httpClient.post<PostDto>(url, dto);
+    return response.data as PostDto;
+  } catch (error: any) {
+    console.error(error);
+    return false;
+  }
+};

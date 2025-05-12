@@ -21,6 +21,7 @@ export const LikeDislike = ({ postId }: Props) => {
   return (
     <>
       <Button
+        className='sannya1111'
         sx={{
           color: "#555",
           "& > * ": { margin: "5px" },

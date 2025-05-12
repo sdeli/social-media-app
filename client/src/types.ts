@@ -19,6 +19,12 @@ export interface GetFriendshipsStatusDto {
   user: number
 }
 
+export interface LikePostsDto {
+  postId: number,
+  isLike: boolean,
+  user: number
+}
+
 export interface FriendshipDto {
   id: number;
   requestedBy: number;
@@ -39,6 +45,7 @@ export interface PostDto {
   content: string | null;
   media: string | null;
   mediaType: string | null;
+  hasLiked: boolean | undefined;
   likes: number;
   dislikes?: number;
   createdAt: string;

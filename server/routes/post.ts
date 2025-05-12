@@ -7,7 +7,7 @@ import { Friendship } from "../models/Friendship";
 import { Like_Dislike } from "../models/Like_Dislike";
 import { Post } from "../models/Post";
 import { User } from "../models/User";
-import { getPostsDto, savePostsDto } from '../dto';
+import { GetPostsDto, LikePostsDto, savePostsDto } from '../dto';
 import multer from "multer";
 import { storeFS } from "../utils/storeFS";
 import { Readable } from "stream";
@@ -15,7 +15,7 @@ import { Readable } from "stream";
 const upload = multer();
 export const postRouter = express.Router();
 
-postRouter.post("/api/posts", upload.single("media"), async (req, res) => {
+postRouter.post("/api/post", upload.single("media"), async (req, res) => {
   try {
     const body = req.body as savePostsDto
     const user = body.user; // assuming you're using passport
@@ -50,11 +50,11 @@ postRouter.post("/api/posts", upload.single("media"), async (req, res) => {
   }
 });
 
-postRouter.get("/api/posts", async (req, res, next) => {
+postRouter.get("/api/post", async (req, res, next) => {
   const params = {
     page: parseInt(req.query.page as string),
     user: parseInt(req.query.user as string)
-  } as getPostsDto;
+  } as GetPostsDto;
 
   const { page, user } = params;
   if (page === undefined || user === undefined) {
@@ -119,3 +119,65 @@ postRouter.get("/api/posts", async (req, res, next) => {
 
   res.json(dtos)
 });
+
+postRouter.post("/api/post/like", async (req, res, next) => {
+  const params = {
+    postId: req.body.postId as number,
+    isLike: req.body.isLike as boolean,
+    user: req.body.user as number,
+  } as LikePostsDto;
+
+  const { postId, user, isLike } = params;
+  if (postId === undefined || user === undefined || isLike === undefined) {
+    res.status(400).send('Bad request exception')
+    return;
+  }
+
+  const post = await Post.findByPk(postId);
+  if (!post) throw new Error("post doesn't exist");
+
+  const like_dislike = await Like_Dislike.findOne({
+    where: {
+      postId,
+      userId: user,
+    },
+  });
+
+  if (!like_dislike) {
+    await Like_Dislike.create({
+      postId,
+      isLike,
+      userId: user,
+    });
+
+    isLike
+      ? await post.increment("likes")
+      : await post.increment("dislikes");
+  } else {
+    if (isLike === like_dislike.isLike) {
+      like_dislike.destroy();
+      isLike
+        ? await post.decrement("likes")
+        : await post.decrement("dislikes");
+    } else {
+      await like_dislike.update({ isLike });
+      if (isLike) {
+        await post.increment("likes");
+        await post.decrement("dislikes");
+      } else {
+        await post.increment("dislikes");
+        await post.decrement("likes");
+      }
+    }
+  }
+  await post.reload();
+
+  const like = await Like_Dislike.findOne({
+    where: { userId: user, postId: post.id },
+  });
+
+
+  post.dataValues.hasLiked = like?.isLike;
+
+  res.json(post.dataValues)
+})
