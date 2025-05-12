@@ -160,10 +160,10 @@ type Mutation{
 `);
 
 export const root: any = {
-  createPost,
-  fetchTimeline,
-  createFriendRequest,
-  acceptFriendRequest,
+  createPost, // done
+  fetchTimeline, // done
+  createFriendRequest, // done
+  acceptFriendRequest, // done
   likePost,
   createComment,
   listFriends,
