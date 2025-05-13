@@ -26,8 +26,7 @@ import { LoadMore } from "../LoadMore";
 import { Media } from "../Media";
 import { UserAvatar } from "../UserAvatar";
 import { likePost__api } from '../../api/postApi';
-import { LikePostsDto, PostDto } from '../../types';
-import { useScrollFetchComments } from '../../hooks/useScrollFetchComments';
+import { LikePostsDto } from '../../types';
 
 export interface UserData {
   id: number;
@@ -77,7 +76,7 @@ export const likeContext = createContext<{
   likeHandler: (isLike: boolean) => { },
 });
 
-export const Post = ({ post }: { post: PostDto }) => {
+export const Post = ({ post }: { post: Post }) => {
   const [open, setOpen] = useState(false);
   const scrollEl = useRef<HTMLElement | null>(null);
 
@@ -86,9 +85,12 @@ export const Post = ({ post }: { post: PostDto }) => {
     noMoreData,
     refAnchor,
     fetch,
-  } = useScrollFetchComments({
-    postId: post.id,
-    userId: 1,
+  } = useScrollFetch({
+    QUERY: GET_COMMENTS,
+    variables: { postId: post.id },
+    scrollEl,
+    onWindow: false,
+    reverseScroll: true,
   });
 
   const [lastComment, setLastComment] = useState(post?.lastComment);
@@ -96,7 +98,7 @@ export const Post = ({ post }: { post: PostDto }) => {
   const [likeCount, setLikeCount] = useState(post.likes);
   const [dislikeCount, setDislikeCount] = useState(post.dislikes);
 
-  const [hasLiked, setHasLiked] = useState<boolean | null>(post.hasLiked || null);
+  const [hasLiked, setHasLiked] = useState<boolean | null>(post.hasLiked);
 
   const likeHandler = (isLike: boolean) => {
     // likePost({ variables: { postId: post.id, isLike } });

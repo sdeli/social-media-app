@@ -164,8 +164,8 @@ export const root: any = {
   fetchTimeline, // done
   createFriendRequest, // done
   acceptFriendRequest, // done
-  likePost,
-  createComment,
+  likePost, // done
+  createComment, // done
   listFriends,
   createMessage,
   setAsRead,

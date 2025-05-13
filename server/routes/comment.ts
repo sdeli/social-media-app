@@ -1,13 +1,8 @@
 import express from "express";
-import { Sequelize, Op } from "sequelize";
-import { commentsPerPage, postsPerPage } from "../constants";
+import { commentsPerPage } from "../constants";
 import { Comment } from "../models/Comment";
-import { FriendshipStatus } from "../models/ENUMS";
-import { Friendship } from "../models/Friendship";
-import { Like_Dislike } from "../models/Like_Dislike";
-import { Post } from "../models/Post";
 import { User } from "../models/User";
-import { GetCommentsDto, GetPostsDto, LikePostsDto, savePostsDto } from '../dto';
+import { GetCommentsDto, PostCommentDto } from '../dto';
 import multer from "multer";
 import { storeFS } from "../utils/storeFS";
 import { Readable } from "stream";
@@ -15,15 +10,12 @@ import { Readable } from "stream";
 export const commentRouter = express.Router();
 
 commentRouter.get("/api/comment", async (req, res, next) => {
-  console.log('query ============')
-  console.log(req.query);
   const params = {
     page: parseInt(req.query.page as string),
     user: parseInt(req.query.user as string),
     postId: parseInt(req.query.user as string)
   } as GetCommentsDto;
-  console.log('params')
-  console.log(params);
+
   const { page, user, postId } = params;
   if (page === undefined || user === undefined || postId === undefined) {
     res.status(400).send('Bad request exception')
@@ -37,7 +29,45 @@ commentRouter.get("/api/comment", async (req, res, next) => {
     limit: commentsPerPage,
     offset: page * commentsPerPage,
   });
-  console.log('comments')
-  console.log(comments);
+
   res.json(comments)
+});
+
+commentRouter.post("/api/comment", async (req, res, next) => {
+  const params = {
+    user: req.body.user as number,
+    postId: req.body.postId as number,
+    content: req.body.content as string,
+    media: req.body.media as any,
+  } as PostCommentDto;
+
+  const { user, postId, content, media } = params;
+  if (user === undefined || postId === undefined || content === undefined) {
+    res.status(400).send('Bad request exception')
+    return;
+  }
+
+  const commentedBy = user;
+
+  let mediaUrl = null,
+    mediaType = null;
+  if (media) {
+    const { filename, createReadStream, mimetype } = await media.promise;
+    const stream = createReadStream();
+    const path = await storeFS({ stream, filename });
+    mediaUrl = path.path;
+    mediaType = mimetype;
+  }
+
+  const comment = await Comment.create({
+    commentedBy,
+    postId,
+    content,
+    media: mediaUrl,
+    mediaType,
+  });
+
+  const _comment = await Comment.findByPk(comment.id, { include: User });
+
+  res.json(_comment)
 });

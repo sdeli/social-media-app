@@ -1,4 +1,4 @@
-import { CommentDto, GetCommentsDto, PostDto } from '../types';
+import { CommentDto, GetCommentsDto, PostCommentDto } from '../types';
 import { httpClient } from './httpClient';
 
 const urlBase = '/api/comment'
@@ -8,6 +8,16 @@ export const fetchComments__api = async (dto: GetCommentsDto) => {
   try {
     const response = await httpClient.get<CommentDto[]>(url);
     return response.data as CommentDto[];
+  } catch (error: any) {
+    console.error(error);
+    return false;
+  }
+};
+
+export const postComment__api = async (dto: PostCommentDto) => {
+  try {
+    const response = await httpClient.post<CommentDto>(urlBase, dto);
+    return response.data as CommentDto;
   } catch (error: any) {
     console.error(error);
     return false;

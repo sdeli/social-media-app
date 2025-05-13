@@ -31,6 +31,13 @@ export interface GetCommentsDto {
   postId: number,
 }
 
+export interface PostCommentDto {
+  user: number,
+  postId: number;
+  content: string;
+  media?: any;
+}
+
 export interface FriendshipDto {
   id: number;
   requestedBy: number;

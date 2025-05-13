@@ -29,3 +29,10 @@ export interface GetCommentsDto {
   user: number,
   postId: number,
 }
+
+export interface PostCommentDto {
+  user: number,
+  postId: number;
+  content: string;
+  media?: any;
+}

@@ -6,6 +6,8 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Media } from "../Media";
 import { UserData } from "../Posts/Post";
 import { UploadMedia } from "../UploadMedia";
+import { postComment__api } from '../../api/commentApi';
+import { PostCommentDto } from '../../types';
 
 export interface CommentType {
   id: number;
@@ -21,43 +23,24 @@ interface Props {
   commentCreated: (comment: CommentType) => void;
 }
 
-const CREATE_COMMENT = gql`
-    mutation ($postId: Int!, $content: String, $media: Upload) {
-        createComment(postId: $postId, content: $content, media: $media) {
-            id
-            content
-            media
-            mediaType
-            User {
-                id
-                name
-                picture
-            }
-            createdAt
-        }
-    }
-`;
-
 export const CreateComment = ({ postId, commentCreated }: Props) => {
   const [content, setContent] = useState("");
 
   const [media, setMedia] = useState<{ type: string; media: Blob } | null>();
   const [mediaPath, setMediaPath] = useState<null | string>(null);
-  const [createComment] = useMutation(CREATE_COMMENT, {
-    onCompleted(data) {
-      commentCreated(Object.values(data)[0] as CommentType);
-    },
-  });
 
   const createHandler = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      createComment({
-        variables: {
-          postId,
-          content,
-          media: media?.media,
-        },
-      });
+      const dto: PostCommentDto = {
+        postId,
+        content,
+        media: media?.media || null,
+        user: 1
+      }
+      postComment__api(dto)
+        .then(comment => {
+          commentCreated(comment as CommentType)
+        })
       setContent("");
       setMedia(null);
       setMediaPath("");
