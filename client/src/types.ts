@@ -25,6 +25,12 @@ export interface LikePostsDto {
   user: number
 }
 
+export interface GetCommentsDto {
+  page: number,
+  user: number,
+  postId: number,
+}
+
 export interface FriendshipDto {
   id: number;
   requestedBy: number;
@@ -50,6 +56,7 @@ export interface PostDto {
   dislikes?: number;
   createdAt: string;
   updatedAt: string;
+  comments: CommentDto[]
   lastComment: CommentDto
 }
 

@@ -23,3 +23,9 @@ export interface LikePostsDto {
   isLike: boolean,
   user: number
 }
+
+export interface GetCommentsDto {
+  page: number,
+  user: number,
+  postId: number,
+}

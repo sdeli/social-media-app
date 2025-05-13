@@ -26,8 +26,9 @@ import { LoadMore } from "../LoadMore";
 import { Media } from "../Media";
 import { UserAvatar } from "../UserAvatar";
 import { likePost__api } from '../../api/postApi';
-import { LikePostsDto, PostDto } from '../../types';
+import { CommentDto, LikePostsDto, PostDto } from '../../types';
 import { useScrollFetchComments } from '../../hooks/useScrollFetchComments';
+import { fetchComments__api } from '../../api/commentApi';
 
 export interface UserData {
   id: number;
@@ -81,22 +82,18 @@ export const Post = ({ post }: { post: PostDto }) => {
   const [open, setOpen] = useState(false);
   const scrollEl = useRef<HTMLElement | null>(null);
 
+  const [likeCount, setLikeCount] = useState(post.likes);
+  const [dislikeCount, setDislikeCount] = useState(post.dislikes || 0);
+  const commentsScrollRef = useRef<HTMLDivElement | null>(null);
+  const
+  const [hasLiked, setHasLiked] = useState<boolean | null>(post.hasLiked || null);
+
   const {
     data: comments,
     noMoreData,
     refAnchor,
-    fetch,
-  } = useScrollFetchComments({
-    postId: post.id,
-    userId: 1,
-  });
-
-  const [lastComment, setLastComment] = useState(post?.lastComment);
-
-  const [likeCount, setLikeCount] = useState(post.likes);
-  const [dislikeCount, setDislikeCount] = useState(post.dislikes);
-
-  const [hasLiked, setHasLiked] = useState<boolean | null>(post.hasLiked || null);
+    fetchData: fetch,
+  } = useScrollFetchComments({ userId: 1, scrollEl: commentsScrollRef, postId: post.id });
 
   const likeHandler = (isLike: boolean) => {
     // likePost({ variables: { postId: post.id, isLike } });
@@ -112,13 +109,19 @@ export const Post = ({ post }: { post: PostDto }) => {
 
   const viewMoreComments = () => {
     setOpen(true);
-    fetch();
+    fetchComments__api({ page: 0, user: 1, postId: post.id }).then((comments) => {
+      if (!comments) return;
+
+      setComm
+      setOpen(true);
+    })
   };
 
   return (
     <likeContext.Provider value={{ likeCount, dislikeCount, hasLiked, likeHandler }}>
       <Modal open={open} onClose={(_) => setOpen(false)}>
         <Container
+          ref={commentsScrollRef}
           maxWidth="sm"
           sx={{
             height: "100vh",
@@ -133,11 +136,9 @@ export const Post = ({ post }: { post: PostDto }) => {
             mode={"full"}
             post={post}
             viewMoreComments={viewMoreComments}
-            comments={comments?.getComments}
-            setLastComment={setLastComment}
+            scrollEl={scrollEl}
             noMoreData={noMoreData}
             refAnchor={refAnchor}
-            scrollEl={scrollEl}
           />
         </Container>
       </Modal>
@@ -146,8 +147,8 @@ export const Post = ({ post }: { post: PostDto }) => {
         mode={"normal"}
         post={post}
         viewMoreComments={viewMoreComments}
-        setLastComment={setLastComment}
-        lastComment={lastComment}
+        noMoreData={noMoreData}
+        refAnchor={refAnchor}
       />
     </likeContext.Provider>
   );
@@ -157,37 +158,34 @@ const PostDisplay = ({
   post,
   mode = "normal",
   viewMoreComments,
-  comments,
-  lastComment,
-  setLastComment,
-  refAnchor,
   scrollEl,
   noMoreData,
+  refAnchor
 }: {
-  post: Post;
+  post: PostDto;
   lastComment?: CommentType;
-  setLastComment: Dispatch<SetStateAction<CommentType>>;
   mode: "normal" | "full";
   viewMoreComments: Function;
-  comments?: CommentType[];
-  noMoreData?: boolean;
-  refAnchor?: React.MutableRefObject<HTMLElement | null>;
   scrollEl?: React.MutableRefObject<HTMLElement | null>;
+  noMoreData: boolean,
+  refAnchor: React.MutableRefObject<HTMLElement | null>
 }) => {
   const [showCreateComment, setShowCreateComment] = useState(mode === "full");
+  const [comments, setComments] = useState<CommentDto[]>(post.comments);
+  const [commentsAdded, setCommentsAdded] = useState<CommentDto[]>([]);
 
-  const [commentsAdded, setCommentsAdded] = useState<CommentType[]>([]);
-  const newRef = useRef<HTMLElement | null>(null);
-  const commentCreated = (comment: CommentType) => {
+  const [lastComment, setLastComment] = useState<CommentDto>(post.lastComment);
+  const commentCreated = (comment: CommentDto) => {
     setLastComment(comment);
     if (mode === "full") {
       setCommentsAdded([comment, ...commentsAdded]);
+      setComments([comment, ...comments]);
     }
   };
 
   useEffect(() => {
     setCommentsAdded([]);
-  }, [comments]);
+  }, [post.comments]);
 
   return (
     <Card
@@ -221,7 +219,7 @@ const PostDisplay = ({
           }}
         >
           <UserAvatar
-            picture={post?.User?.picture}
+            picture={post?.User?.picture || ''}
             id={post.User.id}
           />
           <Box>
@@ -257,7 +255,7 @@ const PostDisplay = ({
               <Media
                 playable
                 mediaPath={post.media}
-                mediaType={post.mediaType}
+                mediaType={post.mediaType || null}
               />
             </Box>
           )}
