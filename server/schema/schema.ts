@@ -172,7 +172,7 @@ export const root: any = {
   setAllAsRead,
   listRecentMessages,
   listMessages,
-  searchForPeople,
+  searchForPeople, // Done
   listFriendRequests,
   listPosts,
   updateProfile,

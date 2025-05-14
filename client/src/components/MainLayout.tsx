@@ -12,8 +12,6 @@ import { AvatarMenu } from "./AvatarMenu";
 import { RootState } from "../store/store";
 import { setupSocket } from "../socket/setupSocket";
 import { closeNotification, setTotalUnread } from "../store/messageSlice";
-import { CallNotification } from "./Message/CallNotification";
-import { CallModal } from "./Message/CallModal";
 import { setupWebRTC } from "../socket/setupWebRTC";
 
 const currentUser = gql`
@@ -192,10 +190,6 @@ const MainLayout = () => {
       >
         <Outlet />
       </Box>
-      <CallNotification />
-      <Modal open={!!call.onCall}>
-        <CallModal />
-      </Modal>
     </Box>
   );
 };
