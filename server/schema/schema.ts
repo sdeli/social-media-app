@@ -54,6 +54,7 @@ type UserData{
     id: Int!
     name: String
     picture: String
+    email: String
 }
 
 type PeopleData{
@@ -173,7 +174,7 @@ export const root: any = {
   listRecentMessages,
   listMessages,
   searchForPeople, // Done
-  listFriendRequests,
+  listFriendRequests, // done
   listPosts,
   updateProfile,
   getCurrentUser,

@@ -41,3 +41,13 @@ export interface GetFriendsDto {
   query?: string,
   user: number
 }
+
+export interface GetFriendsRequestsDto {
+  user: number
+}
+
+export interface AcceptFriendsRequestsDto {
+  friendshipId: number;
+  accepted: boolean;
+  user: number;
+}

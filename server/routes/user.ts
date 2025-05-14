@@ -3,7 +3,7 @@ import { Op } from "sequelize";
 import { FriendshipStatus } from "../models/ENUMS";
 import { Friendship } from "../models/Friendship";
 import { User } from "../models/User";
-import { GetFriendsDto} from '../dto';
+import { GetFriendsDto } from '../dto';
 
 export const userRouter = express.Router();
 

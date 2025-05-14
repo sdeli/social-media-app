@@ -1,6 +1,6 @@
 import express from "express";
 import { Friendship } from "../models/Friendship";
-import { GetFriendshipsStatusDto, SendFriendshipRequestDto } from '../dto';
+import { AcceptFriendsRequestsDto, GetFriendshipsStatusDto, SendFriendshipRequestDto } from '../dto';
 import { Op } from 'sequelize';
 import { FriendshipStatus } from '../models/ENUMS';
 import { User } from '../models/User';
@@ -76,3 +76,53 @@ friendshipRouter.get("/api/friendship", async (req, res, next) => {
 
   res.json(friendShipStatues)
 });
+
+friendshipRouter.get("/api/friendship/request", async (req, res, next) => {
+  if (req.query.user === undefined) {
+    res.status(400).send('Bad request exception')
+    return;
+  }
+
+  const user = parseInt(req.query.user as string)
+
+  const friendshipList = await Friendship.findAll({
+    where: {
+      status: FriendshipStatus.Requested,
+      acceptedBy: user,
+    },
+    include: [{ model: User, as: "RequestedUser" }],
+  });
+  res.json(friendshipList)
+});
+
+friendshipRouter.post("/api/friendship/accept", async (req, res, next) => {
+  if (req.body.friendshipId === undefined || req.body.accepted === undefined || req.body.user === undefined) {
+    res.status(400).send('Bad request exception')
+    return;
+  }
+
+  const params = {
+    friendshipId: req.body.friendshipId as number,
+    accepted: req.body.accepted as boolean,
+    user: req.body.user as number,
+  } as AcceptFriendsRequestsDto;
+
+  const { friendshipId, accepted, user } = params;
+
+  const friendship = await Friendship.findByPk(friendshipId);
+  if (
+    !friendship ||
+    friendship.status !== FriendshipStatus.Requested ||
+    friendship?.acceptedBy !== user
+  ) {
+    res.status(500).send('Bad request exception');
+    return
+  }
+
+  await friendship.update({
+    status: accepted ? FriendshipStatus.Accepted : FriendshipStatus.Rejected,
+    acceptedAt: new Date(),
+  });
+
+  res.json(friendship);
+})

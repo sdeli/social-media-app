@@ -43,6 +43,16 @@ export interface PostCommentDto {
   media?: any;
 }
 
+export interface GetFriendsRequestsDto {
+  user: number
+}
+
+export interface AcceptFriendsRequestsDto {
+  friendshipId: number;
+  accepted: boolean;
+  user: number;
+}
+
 export interface FriendshipDto {
   id: number;
   requestedBy: number;
@@ -55,6 +65,7 @@ export interface FriendshipDto {
   status?: FriendshipStatus | null;
   createdAt: string;
   updatedAt: string;
+  RequestedUser: UserDto;
 }
 
 export interface PostDto {

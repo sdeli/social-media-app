@@ -1,13 +1,15 @@
 import { createSlice, Slice } from "@reduxjs/toolkit";
+import { RootState } from './store';
 
 export enum OnlineStatus {
   Connected = "connected",
   Disconnected = "disconnected",
 }
 interface User {
-  id?: number;
-  name?: string;
-  picture?: string;
+  id: number;
+  name: string;
+  picture: string;
+  email: string;
   friendsStatus: Status[];
 }
 
@@ -44,3 +46,5 @@ export default userSlice.reducer;
 
 export const { setCurrentUser, setFriendsStatus, setUserStatus, logout } =
   userSlice.actions;
+
+export const selectUser = (state: RootState) => state.user;

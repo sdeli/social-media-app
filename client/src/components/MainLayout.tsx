@@ -20,6 +20,7 @@ const currentUser = gql`
             id
             name
             picture
+            email
         }
     }
 `;
@@ -59,8 +60,8 @@ const MainLayout = () => {
 
   const { loading, error, data } = useQuery(currentUser, {
     onCompleted(data) {
-      const { id, name, picture } = data?.getCurrentUser;
-      dispatch(setCurrentUser({ id, name, picture }));
+      const { id, name, picture, email } = data?.getCurrentUser;
+      dispatch(setCurrentUser({ id, name, picture, email }));
     },
   });
   const navigate = useNavigate();

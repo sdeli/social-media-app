@@ -129,8 +129,11 @@ export async function listFriendRequests(_: any, { user }: { user: number }) {
     include: [{ model: User, as: "RequestedUser" }],
   })) as any[];
 
-  return friendshipList.map(
-    ({ id: friendshipId, RequestedUser: { id: friendId, name, picture } }) => ({
+  return friendshipList.map(({
+    id: friendshipId,
+    RequestedUser: {
+      id: friendId, name, picture
+    } }) => ({
       friendshipId,
       friendId,
       name,

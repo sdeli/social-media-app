@@ -32,6 +32,7 @@ export interface UserData {
   id: number;
   name: string;
   picture: string;
+  email: string
 }
 
 export interface Post {

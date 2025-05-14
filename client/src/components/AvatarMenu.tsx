@@ -30,6 +30,10 @@ export const AvatarMenu = () => {
         onClick={(e) => setAnchorEl(e.currentTarget)}
         className={css({ ":focus": { outline: "none" } })}
       >
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <p style={{ fontSize: '16px', margin: '0px' }}>{user.name}</p>
+          <p style={{ fontSize: '16px', margin: '0px' }}>{user.email}</p>
+        </div>
         <Avatar src={user.picture} />
       </IconButton>
       <Menu

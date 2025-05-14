@@ -55,9 +55,9 @@ export async function updateProfile(
 
 export async function getCurrentUser(_: any, { user }: { user: number }) {
   const userDoc = await User.findByPk(user);
-
   if (!userDoc) throw new Error("No user record");
-  const { name, picture, id } = userDoc;
+  const { name, picture, id, email } = userDoc;
 
-  return { name, picture, id };
+
+  return { name, picture, id, email };
 }

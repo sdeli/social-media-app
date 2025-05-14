@@ -1,54 +1,43 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { Avatar, Box, Button, Card, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-
-const LIST_FRIEND_REQUESTS = gql`
-    query {
-        listFriendRequests {
-            friendshipId
-            name
-            picture
-        }
-    }
-`;
-
-const ACCEPT_FRIEND_REQUEST = gql`
-    mutation ($friendshipId: Int!, $accepted: Boolean) {
-        acceptFriendRequest(friendshipId: $friendshipId, accepted: $accepted) {
-            id
-        }
-    }
-`;
+import { acceptFriendshipRequests__api, getFriendshipRequests__api } from '../../api/friendshipApi';
+import { FriendshipDto } from '../../types';
+import { selectUser } from '../../store/userSlice';
+import { useSelector } from 'react-redux';
 
 export const FriendRequests = () => {
-  const { data, refetch } = useQuery(LIST_FRIEND_REQUESTS, {
-    fetchPolicy: "network-only",
-  });
-  const [acceptRequest, { data: requestData, loading, called }] = useMutation(
-    ACCEPT_FRIEND_REQUEST
-  );
+  const [friendships, setFriendships] = useState<FriendshipDto[]>([]);
+  const [isLoading, setIsloading] = useState<boolean>(false);
+  const _user = useSelector(selectUser);
+  if (!_user) return <></>;
   const [disableList, setDisableList] = useState<number[]>([]);
 
-  const sendRequest = (friendshipId: number, accept?: boolean) => {
+  const sendRequest = (friendshipId: number, accept: boolean = true) => {
     setDisableList(disableList.concat(friendshipId));
-    acceptRequest({
-      variables: {
-        accept,
-        friendshipId,
-      },
-    });
+    setIsloading(true);
+    acceptFriendshipRequests__api({ user: _user.id, accepted: accept, friendshipId })
+      .then((_friendship) => {
+        if (!_friendship) return;
+        const _friendships = friendships.filter((fship) => fship.id !== _friendship.id)
+        setFriendships(_friendships);
+        setIsloading(false);
+      })
   };
 
   useEffect(() => {
-    if (!called || loading) return;
+    getFriendshipRequests__api({ user: _user.id }).then((friendshipReq) => {
+      if (!friendshipReq) return;
+      setFriendships(friendshipReq)
+    })
+  }, [])
 
-    const friendshipId = requestData?.acceptFriendRequest?.id;
-    setDisableList(disableList.filter((v) => v !== friendshipId));
+  useEffect(() => {
+    if (isLoading) return;
+    // setDisableList(disableList.filter((v) => v !== friendshipId));
+  }, [isLoading]);
 
-    refetch();
-  }, [loading]);
-
-  if (!data?.listFriendRequests?.length)
+  if (!friendships.length)
     return (
       <Typography textAlign={"center"} marginTop={2}>
         No Friend Requests
@@ -57,19 +46,11 @@ export const FriendRequests = () => {
 
   return (
     <Box display="flex" alignItems="center" flexDirection="column">
-      {data?.listFriendRequests?.map(
-        ({
-          friendshipId,
-          name,
-          picture,
-        }: {
-          friendshipId: number;
-          name: string;
-          picture: string;
-        }) => (
+      {friendships.map((friendship) => {
+        return (
           <Card
             elevation={3}
-            key={friendshipId}
+            key={friendship.id}
             sx={{
               p: 4,
               display: "flex",
@@ -78,17 +59,17 @@ export const FriendRequests = () => {
               my: 1,
             }}
           >
-            <Avatar src={picture} />
+            <Avatar src={friendship.RequestedUser?.picture || ''} />
             <Box marginLeft="auto">
               <Typography textAlign="center" mb={1}>
-                {name}
+                {friendship.RequestedUser.name || 'Anonymus'}
               </Typography>
               <Button
                 sx={{ fontSize: "10px" }}
                 variant="contained"
                 size="small"
-                onClick={(e) => sendRequest(friendshipId)}
-                disabled={disableList.includes(friendshipId)}
+                onClick={(e) => sendRequest(friendship.id)}
+                disabled={disableList.includes(friendship.id)}
               >
                 Accept
               </Button>
@@ -101,15 +82,16 @@ export const FriendRequests = () => {
                 }}
                 size="small"
                 onClick={(e) =>
-                  sendRequest(friendshipId, false)
+                  sendRequest(friendship.id, false)
                 }
-                disabled={disableList.includes(friendshipId)}
+                disabled={disableList.includes(friendship.id)}
               >
                 Reject
               </Button>
             </Box>
           </Card>
         )
+      }
       )}
     </Box>
   );
