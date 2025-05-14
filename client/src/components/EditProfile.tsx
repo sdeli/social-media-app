@@ -2,68 +2,38 @@ import { css } from "@emotion/css";
 import { Avatar, Button, FormControl, FormLabel, Input } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { useState, useEffect } from "react";
-import { gql, useMutation } from "@apollo/client";
-import { useNavigate } from "react-router-dom";
-import { setCurrentUser } from "../store/userSlice";
-import { ErrorDisplay } from "./ErrorDisplayer";
-
-const UPDATE_PROFILE = gql`
-    mutation (
-        $name: String
-        $prevPassword: String
-        $newPassword: String
-        $confirmPassword: String
-        $picture: Upload
-    ) {
-        updateProfile(
-            name: $name
-            prevPassword: $prevPassword
-            newPassword: $newPassword
-            confirmPassword: $confirmPassword
-            picture: $picture
-        ) {
-            id
-            name
-            picture
-        }
-    }
-`;
+import { useState } from "react";
+import { gql } from "@apollo/client";
+import { setProfile } from "../store/userSlice";
+import { editUser__api } from '../api/userApi';
+import { EditUserDto } from '../types';
 
 export const EditProfile = () => {
-  const { name, picture } = useSelector((state: RootState) => state.user);
-  const [updateProfile, { loading, error, data, called, reset }] =
-    useMutation(UPDATE_PROFILE);
+  const user = useSelector((state: RootState) => state.user);
+  const [isLoading, setIsloading] = useState<boolean>(false);
 
-  const [pictureUrl, setPictureUrl] = useState(picture);
+  const [pictureUrl, setPictureUrl] = useState(user.picture);
   const [pictureFile, setPictureFile] = useState<Blob | null>(null);
-  const [formState, setFormState] = useState({
-    name,
+  const [formState, setFormState] = useState<EditUserDto>({
+    name: user.name,
     prevPassword: "",
     newPassword: "",
     confirmPassword: "",
+    picture: null,
+    user: user.id
   });
-  const navigate = useNavigate();
+
   const dispatch = useDispatch();
   const changeFormState = (e: React.ChangeEvent<HTMLInputElement>) => {
-    reset();
     setFormState({
       ...formState,
       [e.target.name]: e.target.value,
     });
   };
 
-  useEffect(() => {
-    if (!called || loading) return;
-    if (!error) navigate("/");
-    if (data) {
-      const { updateProfile } = data;
-      dispatch(setCurrentUser(updateProfile));
-    }
-  }, [loading]);
 
   const changePicture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    reset();
+    // reset();
     const file = e.target.files?.[0] as Blob;
     if (!file) return;
     setPictureFile(file);
@@ -77,7 +47,19 @@ export const EditProfile = () => {
 
   const editProfile = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    updateProfile({ variables: { ...formState, picture: pictureFile } });
+    editUser__api(formState).then(userData => {
+      if (!userData) return;
+      setFormState((prevData) => ({
+        name: userData.name || '',
+        prevPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+        picture: null,
+        user: prevData.user  // or prevData.id if you meant that
+      }));
+
+      dispatch(setProfile({ dto: userData }));
+    })
   };
 
   return (
@@ -102,7 +84,7 @@ export const EditProfile = () => {
         },
       })}
     >
-      <ErrorDisplay content={error?.message} />
+      {/* <ErrorDisplay content={error?.message} /> */}
       <FormControl>
         <FormLabel>Name</FormLabel>
         <Input

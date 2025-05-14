@@ -53,6 +53,15 @@ export interface AcceptFriendsRequestsDto {
   user: number;
 }
 
+export interface EditUserDto {
+  name: string,
+  prevPassword: string,
+  newPassword: string,
+  confirmPassword: string,
+  picture: any | null,
+  user: number
+}
+
 export interface FriendshipDto {
   id: number;
   requestedBy: number;

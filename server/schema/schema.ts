@@ -175,9 +175,9 @@ export const root: any = {
   listMessages,
   searchForPeople, // Done
   listFriendRequests, // done
-  listPosts,
-  updateProfile,
-  getCurrentUser,
-  getComments,
+  listPosts, // Done or Not used on frontend
+  updateProfile, // Done
+  getCurrentUser, // ezt a loginnak a kidobasa ki fogja nyirni
+  getComments, // redux bekotessel lehet kinyirni
   getTotalUnread,
 };

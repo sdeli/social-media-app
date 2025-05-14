@@ -1,5 +1,6 @@
-import { createSlice, Slice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, Slice } from "@reduxjs/toolkit";
 import { RootState } from './store';
+import { UserDto } from '../types';
 
 export enum OnlineStatus {
   Connected = "connected",
@@ -24,6 +25,14 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    setProfile: (state, action: PayloadAction<{ dto: UserDto }>) => {
+      const dto = action.payload.dto
+      return {
+        ...state,
+        name: dto.name || '',
+        picture: dto.picture || state.picture
+      };
+    },
     setCurrentUser: (state, { payload }) => {
       return { ...state, ...payload };
     },
@@ -44,7 +53,7 @@ const userSlice = createSlice({
 
 export default userSlice.reducer;
 
-export const { setCurrentUser, setFriendsStatus, setUserStatus, logout } =
+export const { setCurrentUser, setFriendsStatus, setUserStatus, logout, setProfile } =
   userSlice.actions;
 
 export const selectUser = (state: RootState) => state.user;
