@@ -19,6 +19,11 @@ export interface GetFriendshipsStatusDto {
   user: number
 }
 
+export interface GetFriendsDto {
+  query?: string,
+  user: number
+}
+
 export interface LikePostsDto {
   postId: number,
   isLike: boolean,
@@ -69,7 +74,7 @@ export interface PostDto {
 
 export interface UserDto {
   id: number;
-  name?: string;
+  name: string | null;
   email: string;
   password: string;
   picture: string | null;

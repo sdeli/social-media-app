@@ -36,3 +36,8 @@ export interface PostCommentDto {
   content: string;
   media?: any;
 }
+
+export interface GetFriendsDto {
+  query?: string,
+  user: number
+}

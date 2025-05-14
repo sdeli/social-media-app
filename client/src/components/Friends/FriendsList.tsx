@@ -1,28 +1,30 @@
 import { gql, useQuery } from "@apollo/client";
 import { Avatar, Box, Button, Card, Divider, Typography } from "@mui/material";
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
+import { getFriendsList__api } from '../../api/userApi';
+import { UserDto } from '../../types';
 
-const SEARCH_FOR_PEOPLE = gql`
-    query ($query: String) {
-        listFriends(query: $query) {
-            id
-            name
-            picture
-        }
-    }
-`;
 
 export const FriendsList = () => {
-  const { refetch, data } = useQuery(SEARCH_FOR_PEOPLE, {
-    fetchPolicy: "network-only",
-  });
+  const [data, setFriends] = useState<UserDto[]>([]);
 
   const searchHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
-    refetch({
-      query,
-    });
+    getFriendsList__api({ user: 1, query })
+      .then((friends) => {
+        if (!friends || typeof friends === 'string') return;
+        setFriends(friends);
+      })
   };
+
+  useEffect(() => {
+    getFriendsList__api({ user: 1 })
+      .then((friends) => {
+        if (!friends || typeof friends === 'string') return;
+        setFriends(friends);
+      })
+  }, [])
 
   return (
     <>
@@ -33,24 +35,16 @@ export const FriendsList = () => {
       />
       <Divider sx={{ marginBlock: 2 }} />
       <Box display="flex" alignItems="center" flexDirection="column">
-        {!data?.listFriends?.length && (
+        {!data.length && (
           <Typography textAlign={"center"} marginTop={2}>
             No results
           </Typography>
         )}
-        {data?.listFriends?.map(
-          ({
-            id,
-            name,
-            picture,
-          }: {
-            id: number;
-            name: string;
-            picture: string;
-          }) => (
+        {data.length && data.map(
+          (user) => (
             <Card
               elevation={3}
-              key={id}
+              key={user.id}
               sx={{
                 p: 4,
                 display: "flex",
@@ -59,14 +53,14 @@ export const FriendsList = () => {
                 my: 1,
               }}
             >
-              <Avatar src={picture} />
+              <Avatar src={user.picture || ''} />
               <Box marginLeft="auto">
                 <Typography textAlign="center" mb={1}>
-                  {name}
+                  {user.name ? user.name : 'Anonymus'}
                 </Typography>
                 <Link
-                  to={`/account/friends/${id}`}
-                  state={{ name, picture }}
+                  to={`/account/friends/${user.id}`}
+                  state={{ name: user.name || 'Anonymus', picture: user.picture || '' }}
                 >
                   See detail
                 </Link>

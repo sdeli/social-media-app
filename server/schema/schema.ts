@@ -166,7 +166,7 @@ export const root: any = {
   acceptFriendRequest, // done
   likePost, // done
   createComment, // done
-  listFriends,
+  listFriends, // done
   createMessage,
   setAsRead,
   setAllAsRead,
