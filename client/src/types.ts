@@ -96,7 +96,6 @@ export interface UserDto {
   id: number;
   name: string | null;
   email: string;
-  password: string;
   picture: string | null;
 }
 export interface FriendShipStatusDto extends UserDto {
@@ -144,6 +143,25 @@ export interface LikeDislikeDto {
   postId?: number | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface TokensDto {
+  access_token: string;
+  refresh_token: string;
+}
+
+export interface LoggedInUserDto {
+  user: UserDto;
+  tokens: TokensDto;
+  text: string;
+  // meta: WordMeta | null;
+  updatedAt: Date;
+}
+
+export interface LoginDto {
+  username: string;
+  email?: string;
+  password: string;
 }
 
 export enum FriendshipStatus {

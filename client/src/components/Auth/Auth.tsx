@@ -7,6 +7,11 @@ import { useState } from "react";
 import axios from "../../axios";
 import { useNavigate, Link } from "react-router-dom";
 import { ErrorDisplay } from "../ErrorDisplayer";
+import { LoginDto } from '../../types';
+import { postLoginData } from '../../api/authApi';
+import { setCurrentUser } from '../../store/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { store } from '../../store/store';
 
 export const Auth = ({
   url,
@@ -22,18 +27,36 @@ export const Auth = ({
     handleSubmit,
     formState: { errors },
   } = useForm();
-
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [backendError, setBackendError] = useState("");
+
+  store.subscribe(() => {
+    const state = store.getState();
+    if (state.user) {
+      navigate("/");
+    }
+  });
 
   const onSubmit = async (data: FieldValues) => {
     setBackendError("");
     const { email, password } = data;
-    try {
-      const res = await axios.post(url, { email, password });
+    const dto: LoginDto = {
+      email,
+      password,
+      username: 'test'
+    }
 
-      navigate("/");
+    try {
+      const res = await postLoginData(dto);
+
+      dispatch(setCurrentUser({
+        id: res.user.id,
+        name: res.user.name,
+        picture: res.user.picture,
+        email: res.user.email
+      }))
     } catch (e: any) {
       setBackendError(e?.response?.data || "Error Occurred");
     }

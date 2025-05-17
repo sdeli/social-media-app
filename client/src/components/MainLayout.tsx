@@ -52,29 +52,17 @@ const MainLayout = () => {
   }, []);
 
   useEffect(() => {
-    if (!user.id) return;
+    if (!user.id) {
+      return navigate("/login");
+    }
 
-    setupSocket(user.id, dispatch);
-    setupWebRTC(dispatch);
+    // setupSocket(user.id, dispatch);
+    // setupWebRTC(dispatch);
   }, [user.id]);
 
-  const { loading, error, data } = useQuery(currentUser, {
-    onCompleted(data) {
-      const { id, name, picture, email } = data?.getCurrentUser;
-      dispatch(setCurrentUser({ id, name, picture, email }));
-    },
-  });
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [tab, setTab] = useState("/");
-
-  useEffect(() => {
-    if (loading) return;
-
-    if (error || !data) {
-      return navigate("/login");
-    }
-  }, [loading]);
 
   const close = () => dispatch(closeNotification());
 
