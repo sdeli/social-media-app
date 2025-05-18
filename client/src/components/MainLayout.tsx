@@ -7,23 +7,12 @@ import { useQuery } from "@apollo/client/react";
 import { gql } from "@apollo/client/core";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setCurrentUser } from "../store/userSlice";
 import { AvatarMenu } from "./AvatarMenu";
 import { RootState } from "../store/store";
 import { setupSocket } from "../socket/setupSocket";
 import { closeNotification, setTotalUnread } from "../store/messageSlice";
 import { setupWebRTC } from "../socket/setupWebRTC";
 
-const currentUser = gql`
-    query {
-        getCurrentUser {
-            id
-            name
-            picture
-            email
-        }
-    }
-`;
 
 const GET_TOTAL_UNREAD = gql`
     query {
@@ -35,6 +24,8 @@ const GET_TOTAL_UNREAD = gql`
 
 const MainLayout = () => {
   const { user, message, call } = useSelector((state: RootState) => state);
+  const navigate = useNavigate();
+
 
   useQuery(GET_TOTAL_UNREAD, {
     onCompleted(data) {
@@ -46,21 +37,21 @@ const MainLayout = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    if (!user.id) {
+      navigate("/login");
+    }
+
+    // setupSocket(user.id, dispatch);
+    // setupWebRTC(dispatch);
+  }, [user]);
+
+  useEffect(() => {
     if (pathname.includes("chat")) setTab("/chat");
     else if (pathname.includes("account")) setTab("/account");
     else setTab("/");
   }, []);
 
-  useEffect(() => {
-    if (!user.id) {
-      return navigate("/login");
-    }
 
-    // setupSocket(user.id, dispatch);
-    // setupWebRTC(dispatch);
-  }, [user.id]);
-
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [tab, setTab] = useState("/");
 

@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { EditUserDto, GetFriendsDto, LoggedInUserDto, LoginDto, UserDto } from '../types';
+import { LoggedInUserDto, LoginDto } from '../types';
 import { httpClient } from './httpClient';
 
 export const postLoginData = async (LoginDto: LoginDto, register: boolean = false) => {

@@ -27,12 +27,12 @@ export const Media = ({
     >
       {mediaPath && mediaType?.includes("video") && (
         <a href={mediaPath}>
-          <video src={'http://localhost:4000/' + mediaPath} controls={playable}></video>
+          <video src={mediaPath} controls={playable}></video>
         </a>
       )}
       {mediaPath && mediaType?.includes("image") && (
-        <a href={'http://localhost:4000/' + mediaPath}>
-          <img src={'http://localhost:4000/' + mediaPath} />
+        <a href={mediaPath}>
+          <img src={mediaPath} />
         </a>
       )}
     </Box>

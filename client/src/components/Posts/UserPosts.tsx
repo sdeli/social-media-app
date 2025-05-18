@@ -16,7 +16,7 @@ interface Props {
 
 export const UserPosts = (prop: Props) => {
   const { id, name, picture } = useSelector((state: RootState) => state.user);
-  const userId = id || 1;
+  const userId = id;
   const scrollEl = useRef(null);
 
   const { data, refAnchor, noMoreData } = useScrollFetchRest({ userId, scrollEl });

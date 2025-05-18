@@ -2,12 +2,15 @@ import { Avatar, Box, Button, Card, Divider, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getFriendshipStatuses__api, sendFriendRequest__api } from '../../api/friendshipApi';
 import { FriendShipStatusDto, SendFriendshipRequestDto } from '../../types';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../store/userSlice';
 
 export const FindFriends = () => {
+  const user = useSelector(selectUser);
   const [data, setData] = useState<FriendShipStatusDto[]>([]);
   const [query, setQuery] = useState("");
 
-  const [loadingList, setLoadingList] = useState<number[]>([]);
+  const [loadingList, setLoadingList] = useState<string[]>([]);
 
   const searchHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoadingList([]);
@@ -15,14 +18,14 @@ export const FindFriends = () => {
     const query = e.target.value;
     setQuery(query);
 
-    getFriendshipStatuses__api({ query, user: 1 })
+    getFriendshipStatuses__api({ query, user: user.id })
       .then((fStatus) => {
         if (!fStatus) return;
         setData(fStatus);
       })
   };
 
-  const sendRequest = (acceptedBy: number, user: number = 1) => {
+  const sendRequest = (acceptedBy: string, user: string) => {
     const dto: SendFriendshipRequestDto = { user, acceptedBy };
     setLoadingList(loadingList.concat(acceptedBy));
     sendFriendRequest__api(dto).then((friendRequest) => {
@@ -33,7 +36,7 @@ export const FindFriends = () => {
   };
 
   useEffect(() => {
-    getFriendshipStatuses__api({ query, user: 1 })
+    getFriendshipStatuses__api({ query, user: user.id })
       .then((fStatus) => {
         if (!fStatus) return;
         setData(fStatus);

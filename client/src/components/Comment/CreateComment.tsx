@@ -8,6 +8,8 @@ import { UserData } from "../Posts/Post";
 import { UploadMedia } from "../UploadMedia";
 import { postComment__api } from '../../api/commentApi';
 import { PostCommentDto } from '../../types';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../store/userSlice';
 
 export interface CommentType {
   id: number;
@@ -24,6 +26,7 @@ interface Props {
 }
 
 export const CreateComment = ({ postId, commentCreated }: Props) => {
+  const user = useSelector(selectUser);
   const [content, setContent] = useState("");
 
   const [media, setMedia] = useState<{ type: string; media: Blob } | null>();
@@ -35,7 +38,7 @@ export const CreateComment = ({ postId, commentCreated }: Props) => {
         postId,
         content,
         media: media?.media || null,
-        user: 1
+        user: user.id
       }
       postComment__api(dto)
         .then(comment => {

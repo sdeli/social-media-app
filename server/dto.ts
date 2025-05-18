@@ -3,7 +3,7 @@ export interface GetPostsDto {
   user: number
 }
 
-export interface savePostsDto {
+export interface SavePostDto {
   content: string;
   user: number
 }

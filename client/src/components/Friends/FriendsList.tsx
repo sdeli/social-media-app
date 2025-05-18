@@ -4,14 +4,17 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { getFriendsList__api } from '../../api/userApi';
 import { UserDto } from '../../types';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../store/userSlice';
 
 
 export const FriendsList = () => {
+  const user = useSelector(selectUser);
   const [data, setFriends] = useState<UserDto[]>([]);
 
   const searchHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
-    getFriendsList__api({ user: 1, query })
+    getFriendsList__api({ user: user.id, query })
       .then((friends) => {
         if (!friends || typeof friends === 'string') return;
         setFriends(friends);
@@ -19,7 +22,7 @@ export const FriendsList = () => {
   };
 
   useEffect(() => {
-    getFriendsList__api({ user: 1 })
+    getFriendsList__api({ user: user.id })
       .then((friends) => {
         if (!friends || typeof friends === 'string') return;
         setFriends(friends);

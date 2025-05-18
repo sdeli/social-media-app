@@ -7,7 +7,7 @@ import { Friendship } from "../models/Friendship";
 import { Like_Dislike } from "../models/Like_Dislike";
 import { Post } from "../models/Post";
 import { User } from "../models/User";
-import { GetPostsDto, LikePostsDto, savePostsDto } from '../dto';
+import { GetPostsDto, LikePostsDto, SavePostDto } from '../dto';
 import multer from "multer";
 import { storeFS } from "../utils/storeFS";
 import { Readable } from "stream";
@@ -17,8 +17,8 @@ export const postRouter = express.Router();
 
 postRouter.post("/api/post", upload.single("media"), async (req, res) => {
   try {
-    const body = req.body as savePostsDto
-    const user = body.user; // assuming you're using passport
+    const body = req.body as SavePostDto
+    const user = body.user;
     const content = body.content;
     const mediaFile = req.file as Express.Multer.File;
 

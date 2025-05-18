@@ -1,56 +1,56 @@
 export interface GetPostDto {
   page: number,
-  user: number
+  user: string
 }
 
-export interface SavePostsDto {
-  user: number
+export interface SavePostDto {
+  user: string
   content?: string;
   media?: File,
 }
 
 export interface SendFriendshipRequestDto {
-  acceptedBy: number,
-  user: number
+  acceptedBy: string,
+  user: string
 }
 
 export interface GetFriendshipsStatusDto {
   query: string,
-  user: number
+  user: string
 }
 
 export interface GetFriendsDto {
   query?: string,
-  user: number
+  user: string
 }
 
 export interface LikePostsDto {
   postId: number,
   isLike: boolean,
-  user: number
+  user: string
 }
 
 export interface GetCommentsDto {
   page: number,
-  user: number,
+  user: string,
   postId: number,
 }
 
 export interface PostCommentDto {
-  user: number,
+  user: string,
   postId: number;
   content: string;
   media?: any;
 }
 
 export interface GetFriendsRequestsDto {
-  user: number
+  user: string
 }
 
 export interface AcceptFriendsRequestsDto {
   friendshipId: number;
   accepted: boolean;
-  user: number;
+  user: string;
 }
 
 export interface EditUserDto {
@@ -59,14 +59,14 @@ export interface EditUserDto {
   newPassword: string,
   confirmPassword: string,
   picture: any | null,
-  user: number
+  user: string
 }
 
 export interface FriendshipDto {
   id: number;
-  requestedBy: number;
+  requestedBy: string;
   reqUnread?: number;
-  acceptedBy: number;
+  acceptedBy: string;
   accUnread?: number;
   lastMessage?: number | null;
   lastMessageTime?: string | null;
@@ -93,7 +93,7 @@ export interface PostDto {
 }
 
 export interface UserDto {
-  id: number;
+  id: string;
   name: string | null;
   email: string;
   picture: string | null;

@@ -1,4 +1,4 @@
-import { GetPostDto, LikePostsDto, PostDto, SavePostsDto } from '../types';
+import { GetPostDto, LikePostsDto, PostDto, SavePostDto } from '../types';
 import { createQueryString, httpClient } from './httpClient';
 
 const urlBase = '/api/post'
@@ -14,7 +14,7 @@ export const fetchTimeline__api = async (dto: GetPostDto) => {
   }
 };
 
-export const createPost__api = async (dto: SavePostsDto) => {
+export const createPost__api = async (dto: SavePostDto) => {
   const formData = new FormData();
   formData.append("user", dto.user.toString());
 

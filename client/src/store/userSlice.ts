@@ -7,7 +7,7 @@ export enum OnlineStatus {
   Disconnected = "disconnected",
 }
 interface User {
-  id: number;
+  id: string;
   name: string;
   picture: string;
   email: string;

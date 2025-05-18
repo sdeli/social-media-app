@@ -27,9 +27,11 @@ import { Media } from "../Media";
 import { UserAvatar } from "../UserAvatar";
 import { likePost__api } from '../../api/postApi';
 import { LikePostsDto } from '../../types';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../store/userSlice';
 
 export interface UserData {
-  id: number;
+  id: string;
   name: string;
   picture: string;
   email: string
@@ -78,6 +80,7 @@ export const likeContext = createContext<{
 });
 
 export const Post = ({ post }: { post: Post }) => {
+  const user = useSelector(selectUser);
   const [open, setOpen] = useState(false);
   const scrollEl = useRef<HTMLElement | null>(null);
 
@@ -103,7 +106,7 @@ export const Post = ({ post }: { post: Post }) => {
 
   const likeHandler = (isLike: boolean) => {
     // likePost({ variables: { postId: post.id, isLike } });
-    const dto: LikePostsDto = { isLike, postId: post.id, user: 1 };
+    const dto: LikePostsDto = { isLike, postId: post.id, user: user.id };
     likePost__api(dto).then((post) => {
       if (post) {
         setHasLiked(post.hasLiked || null)

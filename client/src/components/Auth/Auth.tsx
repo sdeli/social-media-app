@@ -9,7 +9,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { ErrorDisplay } from "../ErrorDisplayer";
 import { LoginDto } from '../../types';
 import { postLoginData } from '../../api/authApi';
-import { setCurrentUser } from '../../store/userSlice';
+import { selectUser, setCurrentUser } from '../../store/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { store } from '../../store/store';
 
@@ -27,15 +27,21 @@ export const Auth = ({
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const user = useSelector(selectUser);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  if (user.id) {
+    navigate("/");
+    return;
+  }
   const [backendError, setBackendError] = useState("");
 
   store.subscribe(() => {
     const state = store.getState();
     if (state.user) {
       navigate("/");
+      return;
     }
   });
 

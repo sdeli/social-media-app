@@ -7,7 +7,7 @@ export const useScrollFetchRest = ({
   scrollEl,
   onWindow = true,
 }: {
-  userId: number;
+  userId: string;
   scrollEl?: React.MutableRefObject<HTMLElement | null>;
   onWindow?: boolean;
 }) => {

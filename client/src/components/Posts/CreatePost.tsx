@@ -13,10 +13,12 @@ import { useState } from "react";
 import { ErrorDisplay } from "../ErrorDisplayer";
 import { UploadMedia } from "../UploadMedia";
 import { Media } from "../Media";
-import { SavePostsDto } from '../../types';
+import { SavePostDto } from '../../types';
 import { createPost__api } from '../../api/postApi';
+import { selectUser } from '../../store/userSlice';
 
 export const CreatPost = () => {
+  const user = useSelector(selectUser);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [content, setContent] = useState<string>("");
   const [media, setMedia] = useState<{ type: string; media: File } | null>();
@@ -25,8 +27,8 @@ export const CreatPost = () => {
   const { name } = useSelector((state: RootState) => state.user);
 
   const post = async () => {
-    const dto: SavePostsDto = {
-      user: 1
+    const dto: SavePostDto = {
+      user: user.id
     }
 
     if (media) dto.media = media.media;
