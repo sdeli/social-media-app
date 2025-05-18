@@ -8,7 +8,7 @@ export const UserAvatar = ({
   id,
   picture,
 }: {
-  id?: number;
+  id?: string;
   picture?: string;
 }) => {
   const status = useSelector((state: RootState) =>

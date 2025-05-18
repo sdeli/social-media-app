@@ -1,5 +1,5 @@
 import { GetFriendsRequestsDto } from './../../../server/dto';
-import { AcceptFriendsRequestsDto, FriendshipDto, FriendShipStatusDto, GetFriendshipsStatusDto, GetPostDto, PostDto, SavePostsDto, SendFriendshipRequestDto } from '../types';
+import { AcceptFriendsRequestsDto, FriendshipDto, FriendShipStatusDto, GetFriendshipsStatusDto, SendFriendshipRequestDto } from '../types';
 import { httpClient } from './httpClient';
 
 const urlBase = '/api/friendship'

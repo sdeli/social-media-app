@@ -1,4 +1,4 @@
-export interface GetPostDto {
+export interface GetPostsDto {
   page: number,
   user: string
 }
@@ -79,17 +79,16 @@ export interface FriendshipDto {
 
 export interface PostDto {
   id: number;
-  User: UserDto; // User.id
+  postedBy: UserDto;
   content: string | null;
   media: string | null;
   mediaType: string | null;
-  hasLiked: boolean | undefined;
   likes: number;
   dislikes?: number;
   createdAt: string;
   updatedAt: string;
   comments: CommentDto[]
-  lastComment: CommentDto
+  likesDislike: LikeDislikeDto[]
 }
 
 export interface UserDto {
@@ -129,7 +128,7 @@ export interface CommentDto {
   User: UserDto;
   content?: string | null;
   media?: string | null;
-  mediaType?: string | null;
+  mediaType: string | null;
   createdAt: string;
   updatedAt: string;
   postId?: number | null;
@@ -137,7 +136,7 @@ export interface CommentDto {
 
 export interface LikeDislikeDto {
   id: number;
-  userId: number;
+  user: UserDto;
   isLike?: boolean | null;
   commentId?: number | null;
   postId?: number | null;

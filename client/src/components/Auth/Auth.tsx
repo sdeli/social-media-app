@@ -33,7 +33,6 @@ export const Auth = ({
   const dispatch = useDispatch();
   if (user.id) {
     navigate("/");
-    return;
   }
   const [backendError, setBackendError] = useState("");
 
@@ -41,7 +40,6 @@ export const Auth = ({
     const state = store.getState();
     if (state.user) {
       navigate("/");
-      return;
     }
   });
 

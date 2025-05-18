@@ -1,13 +1,16 @@
-import { GetPostDto, LikePostsDto, PostDto, SavePostDto } from '../types';
+import { GetPostsDto, LikePostsDto, PostDto, SavePostDto } from '../types';
 import { createQueryString, httpClient } from './httpClient';
 
 const urlBase = '/api/post'
 
-export const fetchTimeline__api = async (dto: GetPostDto) => {
+export const fetchTimeline__api = async (dto: GetPostsDto) => {
   const url = `${urlBase}?page=${dto.page}&user=${dto.user}`
   try {
     const response = await httpClient.get<PostDto[]>(url);
-    return response.data as PostDto[];
+    const posts = response.data as PostDto[]
+    console.log('posts')
+    console.log(posts);
+    return posts;
   } catch (error: any) {
     console.error(error);
     return false;

@@ -53,9 +53,11 @@ export const useScrollFetch = ({
     variables: {
       ...(!twoWayScroll && { page: 0 }),
       ...(twoWayScroll && {
+        //@ts-ignore
         cursor: fetchRef.current.isNextPage
           ? pageInfo?.endCursor
           : pageInfo?.startCursor,
+        //@ts-ignore
         isNextPage: fetchRef.current.isNextPage,
       }),
       ...variables,
@@ -94,6 +96,7 @@ export const useScrollFetch = ({
           refRect?.bottom > scrollRect.top - 200)
       ) {
         fetchRef.current.loading = true;
+        //@ts-ignore
         fetchRef.current.isNextPage = !scrollUp;
 
         fetchMore({}).then((value) => {
@@ -101,6 +104,7 @@ export const useScrollFetch = ({
           const list = Object.values(value.data)[0] as any;
 
           if (list.length === 0) {
+            // @ts-ignore
             fetchRef.current.isNextPage
               ? (fetchRef.current.hasNextPage = false)
               : (fetchRef.current.hasPreviousPage = false);

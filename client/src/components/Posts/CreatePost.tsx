@@ -97,7 +97,9 @@ export const CreatPost = () => {
               })}
               placeholder={`What's on your mind, ${name}?`}
             ></TextareaAutosize>
-            <Media mediaPath={mediaPath} mediaType={media?.type} />
+            {media &&
+              <Media mediaPath={mediaPath} mediaType={media?.type} />
+            }
           </CardContent>
           <div
             className={css({

@@ -1,9 +1,12 @@
 import { Container, Typography } from "@mui/material";
 import { useScrollFetchRest } from "../../hooks/useScrollFetchRest";
 import { Post } from "./Post";
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../store/userSlice';
 
-export const Timeline = ({ userId }: { userId: number }) => {
-  const { data, refAnchor, noMoreData } = useScrollFetchRest({ userId });
+export const Timeline = () => {
+  const user = useSelector(selectUser);
+  const { data, refAnchor, noMoreData } = useScrollFetchRest({ userId: user.id });
 
   if (!data) return null;
 

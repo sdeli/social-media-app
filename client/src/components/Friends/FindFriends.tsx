@@ -28,6 +28,7 @@ export const FindFriends = () => {
   const sendRequest = (acceptedBy: string, user: string) => {
     const dto: SendFriendshipRequestDto = { user, acceptedBy };
     setLoadingList(loadingList.concat(acceptedBy));
+
     sendFriendRequest__api(dto).then((friendRequest) => {
       if (!friendRequest) return;
       const acceptedBy = friendRequest.acceptedBy;
@@ -44,10 +45,10 @@ export const FindFriends = () => {
   }, [query])
 
   function possibleFriendsList() {
-    return data.map(({ id, name, picture, status }) => (
+    return data.map((FStatus) => (
       <Card
         elevation={3}
-        key={id}
+        key={FStatus.id}
         sx={{
           p: 4,
           display: "flex",
@@ -56,20 +57,20 @@ export const FindFriends = () => {
           my: 1,
         }}
       >
-        {picture &&
-          <Avatar src={picture} />
+        {FStatus.picture &&
+          <Avatar src={FStatus.picture} />
         }
         <Box marginLeft="auto">
           <Typography textAlign="center" mb={1}>
-            {name}
+            {FStatus.name}
           </Typography>
           <Button
             variant="contained"
             size="small"
-            disabled={!!status || loadingList.includes(id)}
+            disabled={!!status || loadingList.includes(FStatus.id)}
             onClick={() => sendRequest(id)}
           >
-            {loadingList.includes(id)
+            {loadingList.includes(FStatus.id)
               ? "Sending"
               : !status
                 ? "Send Request"

@@ -7,16 +7,35 @@ import {
   ThumbUpAltOutlined,
 } from "@mui/icons-material";
 import { Button } from "@mui/material";
-import { useContext, useState } from "react";
-import { likeContext } from "./Posts/Post";
+import { LikePostsDto, PostDto } from '../types';
+import { likePost__api } from '../api/postApi';
+import { useState } from 'react';
 
-interface Props {
-  postId: number;
+interface LikeDislikeProps {
+  post: PostDto;
+  currentUserId: string
 }
 
-export const LikeDislike = ({ postId }: Props) => {
-  const { likeCount, dislikeCount, hasLiked, likeHandler } =
-    useContext(likeContext);
+export const LikeDislike = ({ post, currentUserId }: LikeDislikeProps) => {
+  const [hasLiked] = useState<boolean | null>(getHasLiked);
+
+  function getHasLiked() {
+    const likeDislike = post.likesDislike.find(likeDislike => likeDislike.user.id === currentUserId)
+    if (likeDislike) {
+      if (likeDislike.isLike !== undefined) {
+        return likeDislike.isLike;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  function likeHandler(isLike: boolean) {
+    const dto: LikePostsDto = { isLike, postId: post.id, user: currentUserId };
+    likePost__api(dto);
+  };
 
   return (
     <>
@@ -41,7 +60,7 @@ export const LikeDislike = ({ postId }: Props) => {
             fontFamily: "Roboto !important",
           })}
         >
-          {likeCount}
+          {post.likes}
         </span>
       </Button>
       <Button
@@ -64,7 +83,7 @@ export const LikeDislike = ({ postId }: Props) => {
             fontFamily: "Roboto !important",
           })}
         >
-          {dislikeCount}
+          {post.dislikes}
         </span>
       </Button>
     </>

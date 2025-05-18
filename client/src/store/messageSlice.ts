@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 interface Message {
   recentMessages: {
-    friendId: number;
+    friendId: string;
     name: string;
     picture: string;
     lastMessage: string;
@@ -12,8 +12,8 @@ interface Message {
     [friendId: number]: {
       messages: {
         id: number;
-        senderId?: number;
-        receiverId?: number;
+        senderId?: string;
+        receiverId?: string;
         text?: string;
         media?: string;
         mediaType?: string;

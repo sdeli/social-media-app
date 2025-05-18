@@ -2,21 +2,21 @@ import { Avatar, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { getTime } from "../../utils/getTime";
 import { Media } from "../Media";
-import { CommentType } from "./CreateComment";
+import { CommentDto } from '../../types';
 
 export const Comment = ({
   comment: { content, media, mediaType, User, createdAt },
   prevId,
 }: {
-  comment: CommentType;
-  prevId?: number;
+  comment: CommentDto;
+  prevId?: string;
 }) => {
   return (
     <Box ml={2} mt={2} display="flex" width={"100%"}>
       <Box sx={{ width: "30px", height: "30px" }}>
         {prevId !== User.id && (
           <Avatar
-            src={User?.picture}
+            src={User?.picture || ''}
             sx={{ width: "100%", height: "100%" }}
           />
         )}

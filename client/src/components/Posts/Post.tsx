@@ -20,13 +20,12 @@ import {
 import { useScrollFetch } from "../../hooks/useScrollFetch";
 import { getTime } from "../../utils/getTime";
 import { Comment } from "../Comment/Comment";
-import { CommentType, CreateComment } from "../Comment/CreateComment";
+import { CreateComment } from "../Comment/CreateComment";
 import { LikeDislike } from "../LikeDislike";
 import { LoadMore } from "../LoadMore";
 import { Media } from "../Media";
 import { UserAvatar } from "../UserAvatar";
-import { likePost__api } from '../../api/postApi';
-import { LikePostsDto } from '../../types';
+import { CommentDto, PostDto } from '../../types';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../store/userSlice';
 
@@ -35,19 +34,6 @@ export interface UserData {
   name: string;
   picture: string;
   email: string
-}
-
-export interface Post {
-  id: number;
-  User: UserData;
-  content?: string;
-  media?: string;
-  mediaType?: string;
-  likes: number;
-  dislikes: number;
-  lastComment: CommentType;
-  createdAt: string;
-  hasLiked: boolean;
 }
 
 const GET_COMMENTS = gql`
@@ -67,20 +53,7 @@ const GET_COMMENTS = gql`
     }
 `;
 
-export const likeContext = createContext<{
-  likeCount: number;
-  dislikeCount: number;
-  hasLiked: boolean | null;
-  likeHandler: (isLike: boolean) => void;
-}>({
-  likeCount: 0,
-  dislikeCount: 0,
-  hasLiked: false,
-  likeHandler: (isLike: boolean) => { },
-});
-
-export const Post = ({ post }: { post: Post }) => {
-  const user = useSelector(selectUser);
+export const Post = ({ post }: { post: PostDto }) => {
   const [open, setOpen] = useState(false);
   const scrollEl = useRef<HTMLElement | null>(null);
 
@@ -97,32 +70,13 @@ export const Post = ({ post }: { post: Post }) => {
     reverseScroll: true,
   });
 
-  const [lastComment, setLastComment] = useState(post?.lastComment);
-
-  const [likeCount, setLikeCount] = useState(post.likes);
-  const [dislikeCount, setDislikeCount] = useState(post.dislikes);
-
-  const [hasLiked, setHasLiked] = useState<boolean | null>(post.hasLiked);
-
-  const likeHandler = (isLike: boolean) => {
-    // likePost({ variables: { postId: post.id, isLike } });
-    const dto: LikePostsDto = { isLike, postId: post.id, user: user.id };
-    likePost__api(dto).then((post) => {
-      if (post) {
-        setHasLiked(post.hasLiked || null)
-        setLikeCount(post.likes)
-        setDislikeCount(post.dislikes || 0)
-      }
-    })
-  };
-
   const viewMoreComments = () => {
     setOpen(true);
     fetch();
   };
 
   return (
-    <likeContext.Provider value={{ likeCount, dislikeCount, hasLiked, likeHandler }}>
+    <>
       <Modal open={open} onClose={(_) => setOpen(false)}>
         <Container
           maxWidth="sm"
@@ -140,7 +94,6 @@ export const Post = ({ post }: { post: Post }) => {
             post={post}
             viewMoreComments={viewMoreComments}
             comments={comments?.getComments}
-            setLastComment={setLastComment}
             noMoreData={noMoreData}
             refAnchor={refAnchor}
             scrollEl={scrollEl}
@@ -152,10 +105,8 @@ export const Post = ({ post }: { post: Post }) => {
         mode={"normal"}
         post={post}
         viewMoreComments={viewMoreComments}
-        setLastComment={setLastComment}
-        lastComment={lastComment}
       />
-    </likeContext.Provider>
+    </>
   );
 };
 
@@ -164,27 +115,24 @@ const PostDisplay = ({
   mode = "normal",
   viewMoreComments,
   comments,
-  lastComment,
-  setLastComment,
   refAnchor,
   scrollEl,
   noMoreData,
 }: {
-  post: Post;
-  lastComment?: CommentType;
-  setLastComment: Dispatch<SetStateAction<CommentType>>;
+  post: PostDto;
   mode: "normal" | "full";
   viewMoreComments: Function;
-  comments?: CommentType[];
+  comments?: CommentDto[];
   noMoreData?: boolean;
   refAnchor?: React.MutableRefObject<HTMLElement | null>;
   scrollEl?: React.MutableRefObject<HTMLElement | null>;
 }) => {
+  const currentUser = useSelector(selectUser);
   const [showCreateComment, setShowCreateComment] = useState(mode === "full");
+  const [commentsAdded, setCommentsAdded] = useState<CommentDto[]>([]);
+  const [lastComment, setLastComment] = useState<CommentDto | null>(post.comments[0] || null);
 
-  const [commentsAdded, setCommentsAdded] = useState<CommentType[]>([]);
-  const newRef = useRef<HTMLElement | null>(null);
-  const commentCreated = (comment: CommentType) => {
+  const commentCreated = (comment: CommentDto) => {
     setLastComment(comment);
     if (mode === "full") {
       setCommentsAdded([comment, ...commentsAdded]);
@@ -227,12 +175,12 @@ const PostDisplay = ({
           }}
         >
           <UserAvatar
-            picture={post?.User?.picture}
-            id={post.User.id}
+            picture={post.postedBy.picture || ''}
+            id={post.postedBy.id}
           />
           <Box>
             <Typography fontWeight="500">
-              {post?.User?.name}
+              {post.postedBy.name}
             </Typography>
             <Typography fontWeight="200" fontSize={11}>
               {getTime(post?.createdAt)}
@@ -262,7 +210,7 @@ const PostDisplay = ({
             >
               <Media
                 playable
-                mediaPath={post.media}
+                mediaPath={'http://localhost:3000' + post.media}
                 mediaType={post.mediaType}
               />
             </Box>
@@ -274,7 +222,7 @@ const PostDisplay = ({
             justifyContent="space-around"
             sx={{ "& > * ": { width: "33%" } }}
           >
-            <LikeDislike postId={post?.id} />
+            <LikeDislike post={post} currentUserId={currentUser.id} />
             <Button
               sx={{
                 color: "#777",

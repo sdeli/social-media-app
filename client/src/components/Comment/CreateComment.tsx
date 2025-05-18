@@ -7,22 +7,13 @@ import { Media } from "../Media";
 import { UserData } from "../Posts/Post";
 import { UploadMedia } from "../UploadMedia";
 import { postComment__api } from '../../api/commentApi';
-import { PostCommentDto } from '../../types';
+import { CommentDto, PostCommentDto } from '../../types';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../store/userSlice';
 
-export interface CommentType {
-  id: number;
-  content?: string;
-  media?: string;
-  mediaType?: string;
-  createdAt: string;
-  User: UserData;
-}
-
 interface Props {
   postId: number;
-  commentCreated: (comment: CommentType) => void;
+  commentCreated: (comment: CommentDto) => void;
 }
 
 export const CreateComment = ({ postId, commentCreated }: Props) => {
@@ -42,7 +33,7 @@ export const CreateComment = ({ postId, commentCreated }: Props) => {
       }
       postComment__api(dto)
         .then(comment => {
-          commentCreated(comment as CommentType)
+          commentCreated(comment as CommentDto)
         })
       setContent("");
       setMedia(null);
@@ -79,14 +70,18 @@ export const CreateComment = ({ postId, commentCreated }: Props) => {
           placeholder={`Write your comment`}
         ></TextareaAutosize>
         <UploadMedia
+          // @ts-ignore
           setMedia={setMedia}
           size="small"
           setMediaPath={setMediaPath}
         />
       </Box>
-      <Box width={100} ml={3} mt={2}>
-        <Media mediaPath={mediaPath} mediaType={media?.type} />
-      </Box>
+      {
+        media &&
+        <Box width={100} ml={3} mt={2}>
+          <Media mediaPath={mediaPath} mediaType={media.type} />
+        </Box>
+      }
     </Box>
   );
 };

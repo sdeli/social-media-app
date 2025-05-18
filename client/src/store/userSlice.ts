@@ -15,10 +15,11 @@ interface User {
 }
 
 export interface Status {
-  userId: number;
+  userId: string;
   status: OnlineStatus;
 }
 
+// @ts-ignore
 const initialState: User = { friendsStatus: [] };
 
 const userSlice = createSlice({

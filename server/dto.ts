@@ -1,37 +1,37 @@
 export interface GetPostsDto {
   page: number,
-  user: number
+  user: string
 }
 
 export interface SavePostDto {
   content: string;
-  user: number
+  user: string
 }
 
 export interface SendFriendshipRequestDto {
   acceptedBy: number,
-  user: number
+  user: string
 }
 
 export interface GetFriendshipsStatusDto {
   query: string,
-  user: number
+  user: string
 }
 
 export interface LikePostsDto {
   postId: number,
   isLike: boolean,
-  user: number
+  user: string
 }
 
 export interface GetCommentsDto {
   page: number,
-  user: number,
+  user: string,
   postId: number,
 }
 
 export interface PostCommentDto {
-  user: number,
+  user: string,
   postId: number;
   content: string;
   media?: any;
@@ -39,17 +39,17 @@ export interface PostCommentDto {
 
 export interface GetFriendsDto {
   query?: string,
-  user: number
+  user: string
 }
 
 export interface GetFriendsRequestsDto {
-  user: number
+  user: string
 }
 
 export interface AcceptFriendsRequestsDto {
   friendshipId: number;
   accepted: boolean;
-  user: number;
+  user: string;
 }
 
 export interface EditUserDto {
@@ -58,5 +58,5 @@ export interface EditUserDto {
   newPassword: string,
   confirmPassword: string,
   picture: any | null,
-  user: number
+  user: string
 }

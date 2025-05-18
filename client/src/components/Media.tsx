@@ -2,7 +2,7 @@ import { css } from "@emotion/react";
 import { Box } from "@mui/material";
 
 interface Props {
-  mediaType: string | undefined;
+  mediaType: string | null;
   mediaPath: string | null | undefined;
   width?: string;
   playable?: boolean;

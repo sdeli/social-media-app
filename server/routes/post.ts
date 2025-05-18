@@ -53,7 +53,7 @@ postRouter.post("/api/post", upload.single("media"), async (req, res) => {
 postRouter.get("/api/post", async (req, res, next) => {
   const params = {
     page: parseInt(req.query.page as string),
-    user: parseInt(req.query.user as string)
+    user: req.query.user as string
   } as GetPostsDto;
 
   const { page, user } = params;

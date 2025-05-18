@@ -15,8 +15,8 @@ import { UserPosts } from "./components/Posts/UserPosts";
 import { FriendRequests } from "./components/Friends/FriendRequests";
 import { FriendsList } from "./components/Friends/FriendsList";
 import { FriendDetail } from "./components/Friends/FriendDetail";
-import { RecentMessageList } from "./components/Message/RecentMessageList";
-import { DirectMessage } from "./components/Message/DirectMessage";
+// import { RecentMessageList } from "./components/Message/RecentMessageList";
+// import { DirectMessage } from "./components/Message/DirectMessage";
 import { Timeline } from "./components/Posts/Timeline";
 
 const link = createUploadLink({
@@ -75,7 +75,7 @@ function App() {
         <ThemeProvider theme={theme}>
           <Routes>
             <Route path="/" element={<MainLayout />}>
-              <Route index element={<Timeline userId={1} />}></Route>
+              <Route index element={<Timeline />}></Route>
               <Route path="/profile" element={<EditProfile />} />
               <Route path="/account" element={<Account />}>
                 <Route index element={<UserPosts />} />
@@ -96,14 +96,14 @@ function App() {
                   element={<FriendDetail />}
                 />
               </Route>
-              <Route
+              {/* <Route
                 path="/chat"
                 element={<RecentMessageList />}
-              />
-              <Route
+              /> */}
+              {/* <Route
                 path="/chat/:friendId"
                 element={<DirectMessage />}
-              />
+              /> */}
             </Route>
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />

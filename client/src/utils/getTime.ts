@@ -10,6 +10,7 @@ export const getTime = (createdAt: string) => {
   if (fromNow < 60) return "Now";
   fromNow = Math.ceil(fromNow / (60 as number));
   for (const time of timeArray) {
+    // @ts-ignore
     if (fromNow < time[0])
       return `${fromNow} ${time[1]}${fromNow > 1 ? "s" : ""}`;
     fromNow = Math.ceil(fromNow / (time[0] as number));
