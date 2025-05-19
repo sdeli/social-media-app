@@ -28,9 +28,13 @@ export const CreateComment = ({ postId, commentCreated }: Props) => {
       const dto: PostCommentDto = {
         postId,
         content,
-        media: media?.media || null,
         user: user.id
       }
+
+      if (media) {
+        dto.media = media?.media;
+      }
+
       postComment__api(dto)
         .then(comment => {
           commentCreated(comment as CommentDto)

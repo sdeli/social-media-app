@@ -125,7 +125,7 @@ export interface OnlineStatusDto {
 
 export interface CommentDto {
   id: number;
-  User: UserDto;
+  commentedBy: UserDto;
   content?: string | null;
   media?: string | null;
   mediaType: string | null;

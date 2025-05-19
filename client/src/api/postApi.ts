@@ -19,13 +19,13 @@ export const fetchTimeline__api = async (dto: GetPostsDto) => {
 
 export const createPost__api = async (dto: SavePostDto) => {
   const formData = new FormData();
-  formData.append("user", dto.user.toString());
+  formData.append("user", dto.user);
 
   if (dto.content) formData.append("content", dto.content);
   if (dto.media) formData.append("media", dto.media);
 
   try {
-    const res = await httpClient.post("/api/post", formData, {
+    const res = await httpClient.post<PostDto>("/api/post", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

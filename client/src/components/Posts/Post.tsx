@@ -93,7 +93,6 @@ export const Post = ({ post }: { post: PostDto }) => {
             mode={"full"}
             post={post}
             viewMoreComments={viewMoreComments}
-            comments={comments?.getComments}
             noMoreData={noMoreData}
             refAnchor={refAnchor}
             scrollEl={scrollEl}
@@ -114,7 +113,6 @@ const PostDisplay = ({
   post,
   mode = "normal",
   viewMoreComments,
-  comments,
   refAnchor,
   scrollEl,
   noMoreData,
@@ -122,13 +120,13 @@ const PostDisplay = ({
   post: PostDto;
   mode: "normal" | "full";
   viewMoreComments: Function;
-  comments?: CommentDto[];
   noMoreData?: boolean;
   refAnchor?: React.MutableRefObject<HTMLElement | null>;
   scrollEl?: React.MutableRefObject<HTMLElement | null>;
 }) => {
   const currentUser = useSelector(selectUser);
   const [showCreateComment, setShowCreateComment] = useState(mode === "full");
+  const [comments, setComments] = useState<CommentDto[]>(post.comments);
   const [commentsAdded, setCommentsAdded] = useState<CommentDto[]>([]);
   const [lastComment, setLastComment] = useState<CommentDto | null>(post.comments[0] || null);
 
@@ -263,13 +261,19 @@ const PostDisplay = ({
             <Comment key={comment.id} comment={comment} />
           ))}
           {comments &&
-            comments?.map((comment, i) => (
-              <Comment
-                key={comment.id}
-                prevId={comments?.[i - 1]?.User?.id}
-                comment={comment}
-              />
-            ))}
+            comments?.map((comment, i) => {
+              const prevId = comments[i - 1] ? comments[i - 1].commentedBy.id : null
+
+              return (
+                <Comment
+                  key={comment.id}
+                  prevId={prevId}
+                  comment={comment}
+                />
+              )
+            }
+            )}
+
           {noMoreData === false && (
             <Typography
               textAlign="center"
