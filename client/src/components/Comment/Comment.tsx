@@ -1,6 +1,6 @@
 import { Avatar, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { getTime } from "../../utils/getTime";
+import { getTime } from "../../utils/utils";
 import { Media } from "../Media";
 import { CommentDto } from '../../types';
 

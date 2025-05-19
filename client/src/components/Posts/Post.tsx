@@ -18,7 +18,7 @@ import {
   useRef,
 } from "react";
 import { useScrollFetch } from "../../hooks/useScrollFetch";
-import { getTime } from "../../utils/getTime";
+import { getTime } from "../../utils/utils";
 import { Comment } from "../Comment/Comment";
 import { CreateComment } from "../Comment/CreateComment";
 import { LikeDislike } from "../LikeDislike";
@@ -34,6 +34,11 @@ export interface UserData {
   name: string;
   picture: string;
   email: string
+}
+
+enum PostDisplayType {
+  NORMAL = "NORMAL",
+  FULL = "FULL",
 }
 
 const GET_COMMENTS = gql`
@@ -72,7 +77,6 @@ export const Post = ({ post }: { post: PostDto }) => {
 
   const viewMoreComments = () => {
     setOpen(true);
-    fetch();
   };
 
   return (
@@ -90,7 +94,7 @@ export const Post = ({ post }: { post: PostDto }) => {
           }}
         >
           <PostDisplay
-            mode={"full"}
+            mode={PostDisplayType.FULL}
             post={post}
             viewMoreComments={viewMoreComments}
             noMoreData={noMoreData}
@@ -101,7 +105,7 @@ export const Post = ({ post }: { post: PostDto }) => {
       </Modal>
 
       <PostDisplay
-        mode={"normal"}
+        mode={PostDisplayType.NORMAL}
         post={post}
         viewMoreComments={viewMoreComments}
       />
@@ -111,35 +115,58 @@ export const Post = ({ post }: { post: PostDto }) => {
 
 const PostDisplay = ({
   post,
-  mode = "normal",
+  mode = PostDisplayType.NORMAL,
   viewMoreComments,
   refAnchor,
   scrollEl,
   noMoreData,
 }: {
   post: PostDto;
-  mode: "normal" | "full";
+  mode: PostDisplayType;
   viewMoreComments: Function;
   noMoreData?: boolean;
   refAnchor?: React.MutableRefObject<HTMLElement | null>;
   scrollEl?: React.MutableRefObject<HTMLElement | null>;
 }) => {
+  const IS_FULL_MODE = mode === PostDisplayType.FULL;
   const currentUser = useSelector(selectUser);
-  const [showCreateComment, setShowCreateComment] = useState(mode === "full");
-  const [comments, setComments] = useState<CommentDto[]>(post.comments);
+  const [showCreateComment, setShowCreateComment] = useState(mode === PostDisplayType.FULL);
   const [commentsAdded, setCommentsAdded] = useState<CommentDto[]>([]);
   const [lastComment, setLastComment] = useState<CommentDto | null>(post.comments[0] || null);
+  const [comments] = useState<CommentDto[] | null>(getComments(post));
 
   const commentCreated = (comment: CommentDto) => {
     setLastComment(comment);
-    if (mode === "full") {
+    if (IS_FULL_MODE) {
       setCommentsAdded([comment, ...commentsAdded]);
     }
   };
 
-  useEffect(() => {
-    setCommentsAdded([]);
-  }, [comments]);
+  function getComments(post: PostDto) {
+    if (post.comments.length > 0) {
+      if (IS_FULL_MODE) {
+        return post.comments;
+      } else {
+        return post.comments.slice(1, post.comments.length)
+      }
+    } else {
+      return null;
+    }
+  }
+
+  function getCommentElems(comments: CommentDto[]) {
+    return comments.map((comment, i) => {
+      const prevId = comments[i - 1] ? comments[i - 1].commentedBy.id : null;
+
+      return (
+        <Comment
+          key={comment.id}
+          prevId={prevId}
+          comment={comment}
+        />
+      )
+    });
+  }
 
   return (
     <Card
@@ -213,7 +240,9 @@ const PostDisplay = ({
               />
             </Box>
           )}
+
           <Divider sx={{ mt: 2 }} />
+
           <Box
             display="flex"
             width="100%"
@@ -231,8 +260,10 @@ const PostDisplay = ({
               Comment
             </Button>
           </Box>
+
           <Divider />
-          {lastComment && mode === "normal" && (
+
+          {lastComment && !IS_FULL_MODE && (
             <>
               <Box
                 sx={{
@@ -257,22 +288,12 @@ const PostDisplay = ({
               <Comment comment={lastComment} />
             </>
           )}
-          {commentsAdded?.map((comment) => (
+
+          {commentsAdded && commentsAdded.map((comment) => (
             <Comment key={comment.id} comment={comment} />
           ))}
-          {comments &&
-            comments?.map((comment, i) => {
-              const prevId = comments[i - 1] ? comments[i - 1].commentedBy.id : null
 
-              return (
-                <Comment
-                  key={comment.id}
-                  prevId={prevId}
-                  comment={comment}
-                />
-              )
-            }
-            )}
+          {IS_FULL_MODE && comments && getCommentElems(comments)}
 
           {noMoreData === false && (
             <Typography
@@ -284,8 +305,9 @@ const PostDisplay = ({
             </Typography>
           )}
         </CardContent>
+
       </Box>
-      {(showCreateComment || mode === "full") && (
+      {(showCreateComment || IS_FULL_MODE) && (
         <Container>
           <CreateComment
             postId={post.id}
