@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-interface Message {
+export interface MessageState {
   recentMessages: {
     friendId: string;
     name: string;
@@ -33,7 +33,7 @@ interface Message {
   notification: { name: string; open: boolean };
 }
 
-const initialState: Message = {
+const initialState: MessageState = {
   friendIdsWithUnread: [],
   recentMessages: [],
   messages: {},

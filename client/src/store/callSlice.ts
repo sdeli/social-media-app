@@ -11,7 +11,7 @@ export enum CallType {
   VideoCall = "video-call",
 }
 
-interface CallState {
+export interface CallState {
   call: {
     [friendId: number]: {
       name?: string;

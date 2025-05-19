@@ -6,7 +6,7 @@ export enum OnlineStatus {
   Connected = "connected",
   Disconnected = "disconnected",
 }
-interface User {
+export interface UserState {
   id: string;
   name: string;
   picture: string;
@@ -20,7 +20,7 @@ export interface Status {
 }
 
 // @ts-ignore
-const initialState: User = { friendsStatus: [] };
+const initialState: UserState = { friendsStatus: [] };
 
 const userSlice = createSlice({
   name: "user",

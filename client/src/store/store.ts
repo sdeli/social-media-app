@@ -1,7 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import callSlice from "./callSlice";
-import messageSlice from "./messageSlice";
-import userSlice from "./userSlice";
+import callSlice, { CallState } from "./callSlice";
+import messageSlice, { MessageState } from "./messageSlice";
+import userSlice, { UserState } from "./userSlice";
+import postSlice, { PostState } from "./postSlice";
 
 export const loadState = () => {
   try {
@@ -25,8 +26,15 @@ export const saveState = (state: any) => {
 };
 const persistedState = loadState();
 
-export const store = configureStore({
-  reducer: { user: userSlice, message: messageSlice, call: callSlice },
+interface AppState {
+  user: UserState,
+  message: MessageState,
+  call: CallState,
+  post: PostState,
+}
+
+export const store = configureStore<AppState>({
+  reducer: { user: userSlice, message: messageSlice, call: callSlice, post: postSlice },
   preloadedState: persistedState,
 
 });
