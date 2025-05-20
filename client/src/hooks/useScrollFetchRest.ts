@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { PostDto } from "../types";
 import { fetchTimeline__api } from "../api/postApi";
+import { fetchPostsAction } from '../store/postActions';
+import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '../store/hooks';
 
 export const useScrollFetchRest = ({
   userId,
@@ -11,6 +14,7 @@ export const useScrollFetchRest = ({
   scrollEl?: React.MutableRefObject<HTMLElement | null>;
   onWindow?: boolean;
 }) => {
+  const dispatch = useAppDispatch();
   const [data, setData] = useState<PostDto[]>([]);
   const pageRef = useRef(0);
   const [loading, setLoading] = useState(false);
@@ -23,8 +27,7 @@ export const useScrollFetchRest = ({
     setLoading(true);
 
     try {
-      const newData = await fetchTimeline__api({ page: pageRef.current, user: userId });
-
+      const newData = await dispatch(fetchPostsAction({ page: pageRef.current, user: userId }))
       if (!newData || newData.length === 0) {
         setNoMoreData(true);
       } else {

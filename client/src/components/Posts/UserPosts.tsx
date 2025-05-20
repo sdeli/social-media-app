@@ -7,6 +7,7 @@ import { RootState } from "../../store/store";
 import { Post } from "./Post";
 import { useScrollFetchRest } from '../../hooks/useScrollFetchRest';
 import { PostDto } from '../../types';
+import { selectPosts } from '../../store/postSlice';
 
 interface Props {
   id?: number;
@@ -16,10 +17,11 @@ interface Props {
 
 export const UserPosts = (prop: Props) => {
   const { id, name, picture } = useSelector((state: RootState) => state.user);
+  const posts = useSelector(selectPosts);
   const userId = id;
   const scrollEl = useRef(null);
 
-  const { data, refAnchor, noMoreData } = useScrollFetchRest({ userId, scrollEl });
+  const { refAnchor, noMoreData } = useScrollFetchRest({ userId, scrollEl });
 
   return (
     <Box maxWidth="sm"
@@ -44,13 +46,13 @@ export const UserPosts = (prop: Props) => {
           {name}
         </Typography>
       </Box>
-      {data &&
-        data.map((post: PostDto, i) => (
+      {posts.length &&
+        posts.map((post: PostDto, i) => (
           <Post post={post} key={i} />
         ))}
       {noMoreData ? (
         <Typography textAlign="center">
-          No {data.length > 0 && "more"}{" "}
+          No {posts.length > 0 && "more"}{" "}
           posts
         </Typography>
       ) : (

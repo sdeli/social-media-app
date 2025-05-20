@@ -19,9 +19,9 @@ export const postSlice = createSlice({
     setPosts: (state, action: PayloadAction<{ posts: PostDto[] | PostDto }>) => {
       const { posts } = action.payload;
       if (Array.isArray(posts)) {
-        state.posts = [...posts, ...state.posts]
+        state.posts = [...state.posts, ...posts]
       } else {
-        state.posts = [posts, ...state.posts]
+        state.posts = [...state.posts, posts]
       }
     },
     addComment: (state, action: PayloadAction<{ comment: CommentDto, postId: number }>) => {
