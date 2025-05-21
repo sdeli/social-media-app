@@ -15,7 +15,7 @@ export const EditProfile = () => {
   const [pictureUrl, setPictureUrl] = useState(user.picture);
   const [pictureFile, setPictureFile] = useState<Blob | null>(null);
   const [formState, setFormState] = useState<EditUserDto>({
-    name: user.name,
+    name: user.username,
     prevPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -50,7 +50,7 @@ export const EditProfile = () => {
     editUser__api(formState).then(userData => {
       if (!userData) return;
       setFormState((prevData) => ({
-        name: userData.name || '',
+        name: userData.username || '',
         prevPassword: "",
         newPassword: "",
         confirmPassword: "",

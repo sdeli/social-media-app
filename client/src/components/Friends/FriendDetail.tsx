@@ -3,9 +3,10 @@ import { UserPosts } from "../Posts/UserPosts";
 
 export const FriendDetail = () => {
   const { id } = useParams();
+  if (!id) return <></>
   const { state } = useLocation();
 
   return (
-    <UserPosts id={Number(id)!} name={state.name} picture={state.picture} />
+    <UserPosts id={id} name={state.name} picture={state.picture} />
   );
 };

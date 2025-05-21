@@ -10,18 +10,18 @@ import { PostDto } from '../../types';
 import { selectPosts } from '../../store/postSlice';
 
 interface Props {
-  id?: number;
+  id?: string;
   name?: string;
   picture?: string;
 }
 
-export const UserPosts = (prop: Props) => {
-  const { id, name, picture } = useSelector((state: RootState) => state.user);
+export const UserPosts = () => {
+  const { id, username, picture } = useSelector((state: RootState) => state.user);
   const posts = useSelector(selectPosts);
   const userId = id;
   const scrollEl = useRef(null);
-
-  const { refAnchor, noMoreData } = useScrollFetchRest({ userId, scrollEl });
+ 
+  const { refAnchor, noMoreData, page } = useScrollFetchRest({ userId, scrollEl });
 
   return (
     <Box maxWidth="sm"
@@ -43,13 +43,16 @@ export const UserPosts = (prop: Props) => {
       >
         <Avatar src={picture} sx={{ width: "60px", height: "60px" }} />
         <Typography ml={2} fontSize={18}>
-          {name}
+          {username}
         </Typography>
       </Box>
+      <p>page: {page.current}</p>
+
       {posts.length &&
         posts.map((post: PostDto, i) => (
           <Post post={post} key={i} />
         ))}
+      <p>page: {page.current}</p>
       {noMoreData ? (
         <Typography textAlign="center">
           No {posts.length > 0 && "more"}{" "}

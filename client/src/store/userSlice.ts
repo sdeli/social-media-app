@@ -8,7 +8,7 @@ export enum OnlineStatus {
 }
 export interface UserState {
   id: string;
-  name: string;
+  username: string;
   picture: string;
   email: string;
   friendsStatus: Status[];
@@ -30,7 +30,7 @@ const userSlice = createSlice({
       const dto = action.payload.dto
       return {
         ...state,
-        name: dto.name || '',
+        name: dto.username || '',
         picture: dto.picture || state.picture
       };
     },

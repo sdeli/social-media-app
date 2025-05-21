@@ -1,16 +1,14 @@
+import { selectPossibleFriendsPage } from './friendshipSlice';
 import { createSlice, PayloadAction, Slice } from "@reduxjs/toolkit";
 import { RootState } from './store';
 import { CommentDto, PostDto, UserDto } from '../types';
 
-export enum OnlineStatus {
-  Connected = "connected",
-  Disconnected = "disconnected",
-}
 export interface PostState {
   posts: PostDto[],
+  page: number
 }
 
-const initialState: PostState = { posts: [] };
+const initialState: PostState = { posts: [], page: 0 };
 
 export const postSlice = createSlice({
   name: "post",
@@ -23,6 +21,10 @@ export const postSlice = createSlice({
       } else {
         state.posts = [...state.posts, posts]
       }
+    },
+    setPage: (state, action: PayloadAction<{ page: number }>) => {
+      const { page } = action.payload;
+      state.page = page;
     },
     addComment: (state, action: PayloadAction<{ comment: CommentDto, postId: number }>) => {
       const { comment, postId } = action.payload;
@@ -37,3 +39,4 @@ export const postSlice = createSlice({
 export default postSlice.reducer;
 
 export const selectPosts = (state: RootState) => state.post.posts;
+export const selectPage = (state: RootState) => state.post.page;

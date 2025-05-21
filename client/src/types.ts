@@ -19,6 +19,12 @@ export interface GetFriendshipsStatusDto {
   user: string
 }
 
+export interface GetPossibleFriendsDto {
+  query: string,
+  user: string
+  page: number
+}
+
 export interface GetFriendsDto {
   query?: string,
   user: string
@@ -72,9 +78,9 @@ export interface FriendshipDto {
   lastMessageTime?: string | null;
   acceptedAt?: string | null;
   status?: FriendshipStatus | null;
-  createdAt: string;
-  updatedAt: string;
   RequestedUser: UserDto;
+  updatedAt: string;
+  createdAt: string;
 }
 
 export interface PostDto {
@@ -93,7 +99,7 @@ export interface PostDto {
 
 export interface UserDto {
   id: string;
-  name: string | null;
+  username: string | null;
   email: string;
   picture: string | null;
 }

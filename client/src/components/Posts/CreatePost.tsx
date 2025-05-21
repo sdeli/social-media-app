@@ -24,7 +24,6 @@ export const CreatPost = () => {
   const [media, setMedia] = useState<{ type: string; media: File } | null>();
   const [mediaPath, setMediaPath] = useState<null | string>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const { name } = useSelector((state: RootState) => state.user);
 
   const post = async () => {
     const dto: SavePostDto = {

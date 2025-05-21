@@ -32,7 +32,7 @@ export const Comment = ({ comment, prevId }: { comment: CommentDto; prevId?: str
             fontSize={13}
             whiteSpace="pre-wrap"
           >
-            {comment.commentedBy.name}
+            {comment.commentedBy.username}
           </Typography>
           <Typography fontSize={12}>{comment.content}</Typography>
         </Box>

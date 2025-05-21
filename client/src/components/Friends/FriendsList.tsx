@@ -59,11 +59,11 @@ export const FriendsList = () => {
               <Avatar src={user.picture || ''} />
               <Box marginLeft="auto">
                 <Typography textAlign="center" mb={1}>
-                  {user.name ? user.name : 'Anonymus'}
+                  {user.username ? user.username : 'Anonymus'}
                 </Typography>
                 <Link
                   to={`/account/friends/${user.id}`}
-                  state={{ name: user.name || 'Anonymus', picture: user.picture || '' }}
+                  state={{ name: user.username || 'Anonymus', picture: user.picture || '' }}
                 >
                   See detail
                 </Link>

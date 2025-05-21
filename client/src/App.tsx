@@ -84,6 +84,10 @@ function App() {
                   element={<FindFriends />}
                 />
                 <Route
+                  path="find-friends2"
+                  element={<FindFriends />}
+                />
+                <Route
                   path="friend-requests"
                   element={<FriendRequests />}
                 />

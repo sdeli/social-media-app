@@ -3,6 +3,7 @@ import callSlice, { CallState } from "./callSlice";
 import messageSlice, { MessageState } from "./messageSlice";
 import userSlice, { UserState } from "./userSlice";
 import postSlice, { PostState } from "./postSlice";
+import friendshipSlice, { FriendshipState } from './friendshipSlice';
 
 export const loadState = () => {
   try {
@@ -31,10 +32,11 @@ interface AppState {
   message: MessageState,
   call: CallState,
   post: PostState,
+  friendships: FriendshipState,
 }
 
 export const store = configureStore<AppState>({
-  reducer: { user: userSlice, message: messageSlice, call: callSlice, post: postSlice },
+  reducer: { user: userSlice, message: messageSlice, call: callSlice, post: postSlice, friendships: friendshipSlice },
   preloadedState: persistedState,
 
 });

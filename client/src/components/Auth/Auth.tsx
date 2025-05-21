@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { useForm } from "react-hook-form";
 import { FieldValues } from "react-hook-form/dist/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "../../axios";
 import { useNavigate, Link } from "react-router-dom";
 import { ErrorDisplay } from "../ErrorDisplayer";
@@ -36,19 +36,23 @@ export const Auth = ({
   }
   const [backendError, setBackendError] = useState("");
 
-  store.subscribe(() => {
-    const state = store.getState();
-    if (state.user) {
-      navigate("/");
-    }
-  });
+  useEffect(() => {
+    const unsubscribe = store.subscribe(() => {
+      const state = store.getState();
+      if (state.user) {
+        console.log('sannya');
+        navigate("/");
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   const onSubmit = async (data: FieldValues) => {
     setBackendError("");
     const { email, password } = data;
     const dto: LoginDto = {
-      email,
-      password,
+      email: email || 'test31881@example.com',
+      password: password || 'test',
       username: 'test'
     }
 
@@ -57,7 +61,28 @@ export const Auth = ({
 
       dispatch(setCurrentUser({
         id: res.user.id,
-        name: res.user.name,
+        name: res.user.username,
+        picture: res.user.picture,
+        email: res.user.email
+      }))
+    } catch (e: any) {
+      setBackendError(e?.response?.data || "Error Occurred");
+    }
+  };
+
+  const onSubmitTest = async () => {
+    const dto: LoginDto = {
+      email: 'test31881@example.com',
+      password: 'test',
+      username: 'test'
+    }
+
+    try {
+      const res = await postLoginData(dto);
+
+      dispatch(setCurrentUser({
+        id: res.user.id,
+        name: res.user.username,
         picture: res.user.picture,
         email: res.user.email
       }))
@@ -107,6 +132,20 @@ export const Auth = ({
             Create New Account
           </Typography>
         )}
+
+        <Button
+          sx={{
+            width: "100%",
+            marginX: "auto",
+            display: "inline-block",
+            mt: 6,
+            color: "white",
+          }}
+          variant="contained"
+          onClick={() => onSubmitTest()}
+        >
+          testing
+        </Button>
         <form onSubmit={handleSubmit(onSubmit)}>
           <ErrorDisplay content={backendError} />
           <TextField

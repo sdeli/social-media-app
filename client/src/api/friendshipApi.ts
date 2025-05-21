@@ -1,5 +1,5 @@
 import { GetFriendsRequestsDto } from './../../../server/dto';
-import { AcceptFriendsRequestsDto, FriendshipDto, FriendShipStatusDto, GetFriendshipsStatusDto, SendFriendshipRequestDto } from '../types';
+import { AcceptFriendsRequestsDto, FriendshipDto, FriendShipStatusDto, GetFriendshipsStatusDto, GetPossibleFriendsDto, SendFriendshipRequestDto, UserDto } from '../types';
 import { httpClient } from './httpClient';
 
 const urlBase = '/api/friendship'
@@ -18,7 +18,7 @@ export const sendFriendRequest__api = async (dto: SendFriendshipRequestDto) => {
 export const getFriendshipStatuses__api = async (dto: GetFriendshipsStatusDto) => {
   const url = `${urlBase}/?query=${dto.query}&user=${dto.user}`
   try {
-    const response = await httpClient.get<FriendShipStatusDto[]>(url);
+    const response = await httpClient.get<UserDto[]>(url);
     return response.data
   } catch (error: any) {
     console.error(error);
@@ -42,6 +42,18 @@ export const acceptFriendshipRequests__api = async (dto: AcceptFriendsRequestsDt
 
   try {
     const response = await httpClient.post<FriendshipDto>(url, dto);
+    return response.data
+  } catch (error: any) {
+    console.error(error);
+    return false;
+  }
+};
+
+export const getPossibleFriends__api = async (dto: GetPossibleFriendsDto) => {
+  const url = `/api/possible-friends/?query=${dto.query}&user=${dto.user}&page=${dto.page}`
+
+  try {
+    const response = await httpClient.get<UserDto[]>(url);
     return response.data
   } catch (error: any) {
     console.error(error);

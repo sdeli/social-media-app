@@ -62,7 +62,7 @@ export const FriendRequests = () => {
             <Avatar src={friendship.RequestedUser?.picture || ''} />
             <Box marginLeft="auto">
               <Typography textAlign="center" mb={1}>
-                {friendship.RequestedUser.name || 'Anonymus'}
+                {friendship.RequestedUser.username || 'Anonymus'}
               </Typography>
               <Button
                 sx={{ fontSize: "10px" }}

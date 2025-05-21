@@ -205,7 +205,7 @@ const PostDisplay = ({
           />
           <Box>
             <Typography fontWeight="500">
-              {post.postedBy.name}
+              {post.postedBy.username}
             </Typography>
             <Typography fontWeight="200" fontSize={11}>
               {getTime(post?.createdAt)}

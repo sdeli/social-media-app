@@ -31,3 +31,8 @@ export const addCommentAction = (dto: PostCommentDto): ThunkAction<Promise<void 
     return false;
   }
 }
+
+export const setPageAction = (page: number): ThunkAction<Promise<void>, RootState, unknown, AnyAction> => async (dispatch) => {
+  dispatch(postSlice.actions.setPage({ page }));
+}
+
