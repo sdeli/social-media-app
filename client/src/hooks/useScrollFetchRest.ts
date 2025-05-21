@@ -1,3 +1,4 @@
+import { current } from '@reduxjs/toolkit';
 import { useEffect, useRef, useState } from "react";
 import { FriendshipDto, PostDto, UserDto } from "../types";
 import { fetchTimeline__api } from "../api/postApi";
@@ -38,16 +39,23 @@ export const useScrollFetchRest = ({
   const [friendsips, setFriendships] = useState<UserDto[]>([]);
   const pageRef = useRef(page);
   const [loading, setLoading] = useState(false);
-  const [dataInited, setDataInited] = useState(false);
+  let isLoading = false;
+  const dataInited = useRef<boolean>(false);
   const [noMoreData, setNoMoreData] = useState(false);
   const refAnchor = useRef<HTMLElement | null>(null);
-  const fetchData = async () => {
+
+  async function fetchData() {
+    console.log('isLoading 1')
+    console.log(isLoading);
     if (loading || noMoreData) return;
     setLoading(true);
-
+    isLoading = true
+    console.log('isLoading 2')
+    console.log(isLoading);
     try {
       if (fetchType === FetchType.POSTS) {
         const newPosts = await dispatch(fetchPostsAction({ page: pageRef.current, user: userId }))
+
         if (newPosts && newPosts.length) {
           setPosts((prev) => [...prev, ...newPosts]);
           pageRef.current += 1;
@@ -58,10 +66,17 @@ export const useScrollFetchRest = ({
       }
 
       if (fetchType === FetchType.FRIENDS) {
-        const newFriends = await dispatch(fetchPossibleFriendsAction({ page: pageRef.current, query: query || '', user: userId }))
+        console.log('newPosts =====')
+        const dto = { page: pageRef.current, query: query || '', user: userId }
+        console.log('dto')
+        console.log(dto);
+        const newFriends = await dispatch(fetchPossibleFriendsAction(dto))
+        console.log(newFriends);
         if (newFriends && newFriends.length) {
           setFriendships((prev) => [...prev, ...newFriends]);
           pageRef.current += 1;
+          console.log('current')
+          console.log(pageRef.current);
           dispatch(setPossibleFriendsPageAction(pageRef.current))
         } else {
           setNoMoreData(true);
@@ -71,9 +86,12 @@ export const useScrollFetchRest = ({
     }
 
     setLoading(false);
+    isLoading = false;
+    console.log('isLoading 3')
+    console.log(isLoading);
   };
 
-  const loadMore = () => {
+  async function loadMore() {
     const refRect = refAnchor.current?.getBoundingClientRect();
     const scrollRect = scrollEl?.current?.getBoundingClientRect() || {
       top: 0,
@@ -86,12 +104,14 @@ export const useScrollFetchRest = ({
       refRect &&
       refRect.top >= scrollRect.bottom - 200
     ) {
-      fetchData();
+      await fetchData();
     }
   };
 
   const fetchUntilFilled = async () => {
+    var i = 0
     while (true) {
+      console.log(i + ' ==============');
       const refRect = refAnchor.current?.getBoundingClientRect();
       const scrollRect = scrollEl?.current?.getBoundingClientRect() || {
         top: 0,
@@ -100,17 +120,28 @@ export const useScrollFetchRest = ({
 
       const minus = fetchType === FetchType.POSTS ? 200 : 40;
       if (noMoreData || !refRect || refRect.top >= scrollRect.bottom - minus) {
+        i++;
+        console.log('break');
         break;
       } else {
+        console.log('isLoading')
+        console.log(isLoading);
         await fetchData();
+        console.log('waited');
+        i++;
       }
+
     }
   };
 
   useEffect(() => {
-    if (!dataInited) {
+    console.log('dataInited')
+    console.log(dataInited);
+    if (!dataInited.current) {
+      console.log('effect');
       fetchUntilFilled();
-      setDataInited(true);
+      dataInited.current = true;
+      console.log('effect end');
     }
   }, [refAnchor.current]);
 

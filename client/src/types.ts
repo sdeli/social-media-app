@@ -70,15 +70,14 @@ export interface EditUserDto {
 
 export interface FriendshipDto {
   id: number;
-  requestedBy: string;
+  requestedBy: UserDto;
   reqUnread?: number;
-  acceptedBy: string;
+  acceptedBy: UserDto;
   accUnread?: number;
   lastMessage?: number | null;
   lastMessageTime?: string | null;
   acceptedAt?: string | null;
   status?: FriendshipStatus | null;
-  RequestedUser: UserDto;
   updatedAt: string;
   createdAt: string;
 }

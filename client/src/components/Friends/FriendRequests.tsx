@@ -1,41 +1,47 @@
 import { gql, useMutation } from "@apollo/client";
 import { Avatar, Box, Button, Card, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { acceptFriendshipRequests__api, getFriendshipRequests__api } from '../../api/friendshipApi';
-import { FriendshipDto } from '../../types';
+import { acceptFriendshipRequests__api } from '../../api/friendshipApi';
+import { FriendshipDto, FriendshipStatus } from '../../types';
 import { selectUser } from '../../store/userSlice';
 import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../../store/hooks';
+import { acceptFriendshipRequestsAction, getAllFriendShipsAction } from '../../store/friendshipsActions';
+import { selectFriendships } from '../../store/friendshipSlice';
 
 export const FriendRequests = () => {
-  const [friendships, setFriendships] = useState<FriendshipDto[]>([]);
+  const dispatch = useAppDispatch();
+
   const [isLoading, setIsloading] = useState<boolean>(false);
-  const _user = useSelector(selectUser);
-  if (!_user) return <></>;
+  const currUser = useSelector(selectUser);
+  if (!currUser) return <></>;
   const [disableList, setDisableList] = useState<number[]>([]);
+  const friendships = useSelector(selectFriendships);
+  const [friendshipRequests, setFriendshipRequests] = useState<FriendshipDto[]>([]);
 
   const sendRequest = (friendshipId: number, accept: boolean = true) => {
     setDisableList(disableList.concat(friendshipId));
     setIsloading(true);
-    acceptFriendshipRequests__api({ user: _user.id, accepted: accept, friendshipId })
-      .then((_friendship) => {
-        if (!_friendship) return;
-        const _friendships = friendships.filter((fship) => fship.id !== _friendship.id)
-        setFriendships(_friendships);
+    dispatch(acceptFriendshipRequestsAction({ user: currUser.id, accepted: accept, friendshipId }))
+      .then(() => {
         setIsloading(false);
       })
   };
 
   useEffect(() => {
-    getFriendshipRequests__api({ user: _user.id }).then((friendshipReq) => {
-      if (!friendshipReq) return;
-      setFriendships(friendshipReq)
-    })
-  }, [])
+    const _friendshipRequests = getFriendshipRequests(friendships);
+    setFriendshipRequests(_friendshipRequests);
+  }, [friendships])
 
   useEffect(() => {
-    if (isLoading) return;
-    // setDisableList(disableList.filter((v) => v !== friendshipId));
-  }, [isLoading]);
+    dispatch(getAllFriendShipsAction({ user: currUser.id }))
+  }, [])
+
+  function getFriendshipRequests(_friendships: FriendshipDto[]) {
+    return _friendships.filter((fShip) => {
+      return fShip.acceptedBy.id === currUser.id && fShip.status === FriendshipStatus.Requested
+    })
+  }
 
   if (!friendships.length)
     return (
@@ -46,7 +52,7 @@ export const FriendRequests = () => {
 
   return (
     <Box display="flex" alignItems="center" flexDirection="column">
-      {friendships.map((friendship) => {
+      {friendshipRequests.map((friendship) => {
         return (
           <Card
             elevation={3}
@@ -59,10 +65,10 @@ export const FriendRequests = () => {
               my: 1,
             }}
           >
-            <Avatar src={friendship.RequestedUser?.picture || ''} />
+            <Avatar src={friendship.requestedBy.picture || ''} />
             <Box marginLeft="auto">
               <Typography textAlign="center" mb={1}>
-                {friendship.RequestedUser.username || 'Anonymus'}
+                {friendship.requestedBy.username || 'Anonymus'}
               </Typography>
               <Button
                 sx={{ fontSize: "10px" }}

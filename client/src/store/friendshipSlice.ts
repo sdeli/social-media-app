@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction, Slice } from "@reduxjs/toolkit";
+import { createSlice, current, PayloadAction, Slice } from "@reduxjs/toolkit";
 import { RootState } from './store';
-import { CommentDto, FriendshipDto, PostDto, UserDto } from '../types';
+import { CommentDto, FriendshipDto, FriendshipStatus, PostDto, UserDto } from '../types';
 
 export interface FriendshipState {
   friendships: FriendshipDto[],
@@ -14,24 +14,42 @@ export const friendshipSlice = createSlice({
   name: "friendship",
   initialState,
   reducers: {
-    setfriendship: (state, action: PayloadAction<{ friendships: FriendshipDto[] | FriendshipDto }>) => {
+    setfriendships: (state, action: PayloadAction<{ friendships: FriendshipDto[] }>) => {
       const { friendships } = action.payload;
-      if (Array.isArray(friendships)) {
-        state.friendships = [...state.friendships, ...friendships]
+      state.friendships = [...friendships]
+    },
+    upsertfriendship: (state, action: PayloadAction<{ friendship: FriendshipDto }>) => {
+      const { friendship } = action.payload;
+
+      const i = state.friendships.findIndex((frShip) => { frShip.id === friendship.id })
+      const foundFriendship = i > 0;
+      if (foundFriendship) {
+        state.friendships[i] = friendship;
       } else {
-        state.friendships = [...state.friendships, friendships]
+        state.friendships.push(friendship);
       }
     },
     setPossibleFriends: (state, action: PayloadAction<{ friends: UserDto[] | UserDto, page: number }>) => {
       const { friends, page } = action.payload;
-      console.log('friends')
-      console.log(friends);
-      console.log(page);
       if (Array.isArray(friends)) {
         state.possibleFriends = page ? [...state.possibleFriends, ...friends] : [...friends]
       } else {
         state.possibleFriends = page ? [...state.possibleFriends, friends] : [friends]
       }
+    },
+    cleanupPossibleFriends: (state, action: PayloadAction<{ currentUser: UserDto }>) => {
+      const { currentUser } = action.payload;
+
+      state.possibleFriends = state.possibleFriends.filter(friend => {
+        const users = [friend.id, currentUser.id];
+        const friendship = state.friendships.find((fShip) => {
+          const usersAreInRelation = users.indexOf(fShip.acceptedBy.id) > -1;
+          return usersAreInRelation;
+        })
+        
+        if (!friendship) return true;
+        return friendship.status === FriendshipStatus.Requested
+      })
     },
     setPossibleFriendsPage: (state, action: PayloadAction<{ page: number }>) => {
       const { page } = action.payload;

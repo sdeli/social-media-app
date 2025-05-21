@@ -26,8 +26,8 @@ export const getFriendshipStatuses__api = async (dto: GetFriendshipsStatusDto) =
   }
 };
 
-export const getFriendshipRequests__api = async (dto: GetFriendsRequestsDto) => {
-  const url = `${urlBase}/request/?user=${dto.user}`
+export const getAllFriendships__api = async (dto: GetFriendsRequestsDto) => {
+  const url = `${urlBase}/all/?user=${dto.user}`
   try {
     const response = await httpClient.get<FriendshipDto[]>(url);
     return response.data
