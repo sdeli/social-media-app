@@ -5,14 +5,15 @@ import { FriendshipStatus, FriendShipStatusDto, SendFriendshipRequestDto, UserDt
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../store/userSlice';
 import { FetchType, useScrollFetchRest } from '../../hooks/useScrollFetchRest';
-import { selectFriendships, selectPossibleFriends } from '../../store/friendshipSlice';
-import { cleanupPossibleFriendsAction, fetchPossibleFriendsAction, getAllFriendShipsAction, sendFriendRequestAction } from '../../store/friendshipsActions';
+import { selectFriendships, selectFriendsQuery, selectPossibleFriends, selectPossibleFriendsQuery } from '../../store/friendshipSlice';
+import { cleanupPossibleFriendsAction, fetchPossibleFriendsAction, getAllFriendShipsAction, sendFriendRequestAction, setfriendsQueryAction, setPossiblefriendsQueryAction } from '../../store/friendshipsActions';
 import { useAppDispatch } from '../../store/hooks';
 
 enum SendButtonText {
   sendRequest = 'Send Request',
   requestRejected = 'Request Rejected',
   requestSent = 'Request Sent',
+  waitingForAnswer = 'Waiting For Answer'
 }
 
 export const FindFriends = () => {
@@ -20,20 +21,34 @@ export const FindFriends = () => {
   const user = useSelector(selectUser);
   if (!user.id) return <></>
   const possibleFriends = useSelector(selectPossibleFriends);
+  const [_possibleFriends, setPossibleFriends] = useState<UserDto[]>([]);
+  const query = useSelector(selectPossibleFriendsQuery);
 
-  const [query, setQuery] = useState("");
-
-  const { refAnchor, noMoreData, page } = useScrollFetchRest({ userId: user.id, fetchType: FetchType.FRIENDS, query });
+  const { refAnchor, noMoreData } = useScrollFetchRest({ userId: user.id, fetchType: FetchType.FRIENDS, query });
   const _friendships = useSelector(selectFriendships);
 
   useEffect(() => {
-    dispatch(cleanupPossibleFriendsAction(user));
+    if (query) {
+      setPossibleFriends(filterFriends(possibleFriends, query));
+    } else {
+      setPossibleFriends(possibleFriends);
+    }
+  }, [possibleFriends])
+
+  useEffect(() => {
+    dispatch(getAllFriendShipsAction({ user: user.id }))
+      .then(() => {
+        dispatch(cleanupPossibleFriendsAction(user));
+      })
   }, [])
+
 
   function searchHandler(e: React.ChangeEvent<HTMLInputElement>) {
     const query = e.target.value;
-    setQuery(query);
-    page.current = 0;
+    dispatch(setPossiblefriendsQueryAction(query)).then(() => {
+      const friends = filterFriends(possibleFriends, query);
+      setPossibleFriends(friends);
+    })
   };
 
   function sendRequest(acceptedBy: string, user: string) {
@@ -43,9 +58,6 @@ export const FindFriends = () => {
   };
 
   function getRequestStatus(possibleFriend: UserDto): SendButtonText | false {
-    // if (possibleFriend.username === 'sandor2') {
-    //   debugger
-    // }
     const hasRequest = _friendships.find(fShip => {
       return fShip.acceptedBy.id === possibleFriend.id || fShip.requestedBy.id === possibleFriend.id;
     })
@@ -55,7 +67,11 @@ export const FindFriends = () => {
         return SendButtonText.requestRejected
       }
       if (hasRequest.status === FriendshipStatus.Requested) {
-        return SendButtonText.requestSent
+        if (hasRequest.requestedBy.id === user.id) {
+          return SendButtonText.requestSent
+        } else {
+          return SendButtonText.waitingForAnswer
+        }
       }
 
       return false
@@ -64,11 +80,13 @@ export const FindFriends = () => {
     }
   }
 
+  function filterFriends(friends: UserDto[], query: string) {
+    return friends.filter(friend => friend.username?.includes(query))
+  }
+
   function possibleFriendsList() {
-    return possibleFriends.map((possibleFriend) => {
+    return _possibleFriends.map((possibleFriend) => {
       const buttonMessage = getRequestStatus(possibleFriend);
-      // console.log('buttonMessage')
-      // console.log(buttonMessage);
       const idButtonDisabled = buttonMessage !== SendButtonText.sendRequest;
       return (
         <Card
@@ -126,7 +144,7 @@ export const FindFriends = () => {
         {possibleFriendsList()}
 
         {noMoreData ? (
-          <Typography textAlign="center" mt={2}>
+          <Typography textAlign="center" mt={2} ref={refAnchor}>
             No {possibleFriends.length > 0 && "more "} possible Friends
           </Typography>
         ) : (

@@ -50,10 +50,10 @@ export const acceptFriendshipRequests__api = async (dto: AcceptFriendsRequestsDt
 };
 
 export const getPossibleFriends__api = async (dto: GetPossibleFriendsDto) => {
-  const url = `/api/possible-friends/?query=${dto.query}&user=${dto.user}&page=${dto.page}`
+  const url = `/api/possible-friends`
 
   try {
-    const response = await httpClient.get<UserDto[]>(url);
+    const response = await httpClient.post<UserDto[]>(url, dto);
     return response.data
   } catch (error: any) {
     console.error(error);

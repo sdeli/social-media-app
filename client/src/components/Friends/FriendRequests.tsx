@@ -7,7 +7,7 @@ import { selectUser } from '../../store/userSlice';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../../store/hooks';
 import { acceptFriendshipRequestsAction, getAllFriendShipsAction } from '../../store/friendshipsActions';
-import { selectFriendships } from '../../store/friendshipSlice';
+import { selectFriendships, selectFriendsQuery } from '../../store/friendshipSlice';
 
 export const FriendRequests = () => {
   const dispatch = useAppDispatch();
@@ -19,15 +19,6 @@ export const FriendRequests = () => {
   const friendships = useSelector(selectFriendships);
   const [friendshipRequests, setFriendshipRequests] = useState<FriendshipDto[]>([]);
 
-  const sendRequest = (friendshipId: number, accept: boolean = true) => {
-    setDisableList(disableList.concat(friendshipId));
-    setIsloading(true);
-    dispatch(acceptFriendshipRequestsAction({ user: currUser.id, accepted: accept, friendshipId }))
-      .then(() => {
-        setIsloading(false);
-      })
-  };
-
   useEffect(() => {
     const _friendshipRequests = getFriendshipRequests(friendships);
     setFriendshipRequests(_friendshipRequests);
@@ -37,13 +28,27 @@ export const FriendRequests = () => {
     dispatch(getAllFriendShipsAction({ user: currUser.id }))
   }, [])
 
+  function accept(friendshipId: number, accept: boolean = true) {
+    setIsloading(true);
+
+    dispatch(acceptFriendshipRequestsAction({ user: currUser.id, accepted: accept, friendshipId }))
+      .then((res) => {
+        if (res) {
+          setDisableList(disableList.concat(friendshipId));
+          setIsloading(false);
+        } else {
+          setIsloading(false);
+        }
+      })
+  };
+
   function getFriendshipRequests(_friendships: FriendshipDto[]) {
     return _friendships.filter((fShip) => {
-      return fShip.acceptedBy.id === currUser.id && fShip.status === FriendshipStatus.Requested
+      return fShip.status === FriendshipStatus.Requested && fShip.requestedBy.id !== currUser.id
     })
   }
 
-  if (!friendships.length)
+  if (!friendshipRequests.length)
     return (
       <Typography textAlign={"center"} marginTop={2}>
         No Friend Requests
@@ -74,7 +79,7 @@ export const FriendRequests = () => {
                 sx={{ fontSize: "10px" }}
                 variant="contained"
                 size="small"
-                onClick={(e) => sendRequest(friendship.id)}
+                onClick={(e) => accept(friendship.id)}
                 disabled={disableList.includes(friendship.id)}
               >
                 Accept
@@ -88,7 +93,7 @@ export const FriendRequests = () => {
                 }}
                 size="small"
                 onClick={(e) =>
-                  sendRequest(friendship.id, false)
+                  accept(friendship.id, false)
                 }
                 disabled={disableList.includes(friendship.id)}
               >

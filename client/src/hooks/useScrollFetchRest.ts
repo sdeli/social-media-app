@@ -1,12 +1,9 @@
-import { current } from '@reduxjs/toolkit';
 import { useEffect, useRef, useState } from "react";
-import { FriendshipDto, PostDto, UserDto } from "../types";
-import { fetchTimeline__api } from "../api/postApi";
+import { PostDto, UserDto } from "../types";
 import { fetchPostsAction, setPageAction } from '../store/postActions';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../store/hooks';
-import { fetchPossibleFriendsAction, setPossibleFriendsPageAction } from '../store/friendshipsActions';
-import { selectPossibleFriends, selectPossibleFriendsPage } from '../store/friendshipSlice';
+import { fetchPossibleFriendsAction } from '../store/friendshipsActions';
 import { selectPage } from '../store/postSlice';
 
 export enum FetchType {
@@ -30,35 +27,24 @@ export const useScrollFetchRest = ({
   const dispatch = useAppDispatch();
   let page: number;
 
-  if (fetchType === FetchType.POSTS) {
-    page = useSelector(selectPage);
-  } else {
-    page = useSelector(selectPossibleFriendsPage);
-  }
+  page = useSelector(selectPage);
   const [posts, setPosts] = useState<PostDto[]>([]);
   const [friendsips, setFriendships] = useState<UserDto[]>([]);
   const pageRef = useRef(page);
   const [loading, setLoading] = useState(false);
-  let isLoading = false;
   const dataInited = useRef<boolean>(false);
   const [noMoreData, setNoMoreData] = useState(false);
   const refAnchor = useRef<HTMLElement | null>(null);
 
   async function fetchData() {
-    console.log('isLoading 1')
-    console.log(isLoading);
-    if (loading || noMoreData) return;
+    if (loading) return;
     setLoading(true);
-    isLoading = true
-    console.log('isLoading 2')
-    console.log(isLoading);
     try {
       if (fetchType === FetchType.POSTS) {
         const newPosts = await dispatch(fetchPostsAction({ page: pageRef.current, user: userId }))
 
         if (newPosts && newPosts.length) {
           setPosts((prev) => [...prev, ...newPosts]);
-          pageRef.current += 1;
           dispatch(setPageAction(pageRef.current))
         } else {
           setNoMoreData(true);
@@ -66,18 +52,10 @@ export const useScrollFetchRest = ({
       }
 
       if (fetchType === FetchType.FRIENDS) {
-        console.log('newPosts =====')
-        const dto = { page: pageRef.current, query: query || '', user: userId }
-        console.log('dto')
-        console.log(dto);
+        const dto = { query: query || '', user: userId }
         const newFriends = await dispatch(fetchPossibleFriendsAction(dto))
-        console.log(newFriends);
         if (newFriends && newFriends.length) {
           setFriendships((prev) => [...prev, ...newFriends]);
-          pageRef.current += 1;
-          console.log('current')
-          console.log(pageRef.current);
-          dispatch(setPossibleFriendsPageAction(pageRef.current))
         } else {
           setNoMoreData(true);
         }
@@ -86,9 +64,6 @@ export const useScrollFetchRest = ({
     }
 
     setLoading(false);
-    isLoading = false;
-    console.log('isLoading 3')
-    console.log(isLoading);
   };
 
   async function loadMore() {
@@ -97,7 +72,12 @@ export const useScrollFetchRest = ({
       top: 0,
       bottom: window.innerHeight,
     };
-
+    // console.log('=-=======');
+    // console.log(loading);
+    // console.log(noMoreData);
+    // console.log(refRect);
+    // console.log(refRect.top);
+    // console.log(scrollRect.bottom - 200);
     if (
       !loading &&
       !noMoreData &&
@@ -105,13 +85,18 @@ export const useScrollFetchRest = ({
       refRect.top >= scrollRect.bottom - 200
     ) {
       await fetchData();
+    } else {
+      if (!refAnchor.current) return;
+      const isAtBottom = elementIsVisibleInViewport(refAnchor.current)
+      if (isAtBottom) {
+        await fetchData();
+      }
     }
   };
 
   const fetchUntilFilled = async () => {
     var i = 0
     while (true) {
-      console.log(i + ' ==============');
       const refRect = refAnchor.current?.getBoundingClientRect();
       const scrollRect = scrollEl?.current?.getBoundingClientRect() || {
         top: 0,
@@ -121,27 +106,29 @@ export const useScrollFetchRest = ({
       const minus = fetchType === FetchType.POSTS ? 200 : 40;
       if (noMoreData || !refRect || refRect.top >= scrollRect.bottom - minus) {
         i++;
-        console.log('break');
         break;
       } else {
-        console.log('isLoading')
-        console.log(isLoading);
         await fetchData();
-        console.log('waited');
         i++;
       }
 
     }
   };
 
+  function elementIsVisibleInViewport(el: HTMLElement, partiallyVisible = false) {
+    const { top, left, bottom, right } = el.getBoundingClientRect();
+    const { innerHeight, innerWidth } = window;
+    return partiallyVisible
+      ? ((top > 0 && top < innerHeight) ||
+        (bottom > 0 && bottom < innerHeight)) &&
+      ((left > 0 && left < innerWidth) || (right > 0 && right < innerWidth))
+      : top >= 0 && left >= 0 && bottom <= innerHeight && right <= innerWidth;
+  };
+
   useEffect(() => {
-    console.log('dataInited')
-    console.log(dataInited);
     if (!dataInited.current) {
-      console.log('effect');
       fetchUntilFilled();
       dataInited.current = true;
-      console.log('effect end');
     }
   }, [refAnchor.current]);
 
@@ -155,12 +142,14 @@ export const useScrollFetchRest = ({
       clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(() => {
         loadMore();
-      }, 200);
+      }, 100);
     };
-    el.addEventListener("scroll", debouncedScrollListener);
+
+    el.addEventListener("wheel", debouncedScrollListener);
+
     return () => {
       clearTimeout(debounceTimeout);
-      el.removeEventListener("scroll", debouncedScrollListener);
+      el.removeEventListener("wheel", debouncedScrollListener);
     };
   }, [scrollEl?.current, loading, noMoreData]);
 

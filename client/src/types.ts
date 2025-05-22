@@ -20,9 +20,9 @@ export interface GetFriendshipsStatusDto {
 }
 
 export interface GetPossibleFriendsDto {
-  query: string,
+  query?: string,
   user: string
-  page: number
+  notIn?: string[]
 }
 
 export interface GetFriendsDto {

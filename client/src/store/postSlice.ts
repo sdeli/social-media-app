@@ -1,7 +1,6 @@
-import { selectPossibleFriendsPage } from './friendshipSlice';
-import { createSlice, PayloadAction, Slice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from './store';
-import { CommentDto, PostDto, UserDto } from '../types';
+import { CommentDto, PostDto } from '../types';
 
 export interface PostState {
   posts: PostDto[],

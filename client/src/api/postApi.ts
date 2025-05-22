@@ -8,8 +8,6 @@ export const fetchTimeline__api = async (dto: GetPostsDto) => {
   try {
     const response = await httpClient.get<PostDto[]>(url);
     const posts = response.data as PostDto[]
-    console.log('posts')
-    console.log(posts);
     return posts;
   } catch (error: any) {
     console.error(error);
