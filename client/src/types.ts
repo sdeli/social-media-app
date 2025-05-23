@@ -1,6 +1,6 @@
 export interface GetPostsDto {
-  page: number,
   user: string
+  notIn?: number[]
 }
 
 export interface SavePostDto {

@@ -30,7 +30,6 @@ export const useScrollFetchRest = ({
   page = useSelector(selectPage);
   const [posts, setPosts] = useState<PostDto[]>([]);
   const [friendsips, setFriendships] = useState<UserDto[]>([]);
-  const pageRef = useRef(page);
   const [loading, setLoading] = useState(false);
   const dataInited = useRef<boolean>(false);
   const [noMoreData, setNoMoreData] = useState(false);
@@ -41,11 +40,10 @@ export const useScrollFetchRest = ({
     setLoading(true);
     try {
       if (fetchType === FetchType.POSTS) {
-        const newPosts = await dispatch(fetchPostsAction({ page: pageRef.current, user: userId }))
+        const newPosts = await dispatch(fetchPostsAction({ user: userId }))
 
         if (newPosts && newPosts.length) {
           setPosts((prev) => [...prev, ...newPosts]);
-          dispatch(setPageAction(pageRef.current))
         } else {
           setNoMoreData(true);
         }
@@ -111,7 +109,6 @@ export const useScrollFetchRest = ({
         await fetchData();
         i++;
       }
-
     }
   };
 
@@ -158,6 +155,5 @@ export const useScrollFetchRest = ({
     refAnchor,
     noMoreData,
     loading,
-    page: pageRef
   };
 };

@@ -20,8 +20,8 @@ export const UserPosts = () => {
   const posts = useSelector(selectPosts);
   const userId = id;
   const scrollEl = useRef(null);
- 
-  const { refAnchor, noMoreData, page } = useScrollFetchRest({ userId, scrollEl });
+
+  const { refAnchor, noMoreData } = useScrollFetchRest({ userId, scrollEl });
 
   return (
     <Box maxWidth="sm"
@@ -46,13 +46,11 @@ export const UserPosts = () => {
           {username}
         </Typography>
       </Box>
-      <p>page: {page.current}</p>
 
       {posts.length &&
         posts.map((post: PostDto, i) => (
           <Post post={post} key={i} />
         ))}
-      <p>page: {page.current}</p>
       {noMoreData ? (
         <Typography textAlign="center">
           No {posts.length > 0 && "more"}{" "}

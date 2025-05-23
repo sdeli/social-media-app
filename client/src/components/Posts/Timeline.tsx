@@ -8,14 +8,13 @@ import { selectPosts } from '../../store/postSlice';
 export const Timeline = () => {
   const user = useSelector(selectUser);
   const posts = useSelector(selectPosts);
-  const { refAnchor, noMoreData, page } = useScrollFetchRest({ userId: user.id });
+  const { refAnchor, noMoreData } = useScrollFetchRest({ userId: user.id });
 
   return (
     <Container maxWidth="sm">
       {posts.map((post) => (
         <Post post={post} key={post.id} />
       ))}
-      <p>page: {page.current}</p>
       {noMoreData ? (
         <Typography textAlign="center" mt={2}>
           No {posts.length > 0 && "more "}posts

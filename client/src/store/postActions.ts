@@ -5,9 +5,17 @@ import { GetPostsDto, PostCommentDto, PostDto } from '../types';
 import { postSlice } from './postSlice';
 import { postComment__api } from '../api/commentApi';
 
-export const fetchPostsAction = (dto: GetPostsDto): ThunkAction<Promise<PostDto[] | false>, RootState, unknown, AnyAction> => async (dispatch) => {
+export const fetchPostsAction = (dto: GetPostsDto): ThunkAction<Promise<PostDto[] | false>, RootState, unknown, AnyAction> => async (dispatch, getState) => {
   try {
-    // dispatch(wordSlice.actions.setFetchingWords(true));
+    console.log('dto ======')
+    console.log(dto);
+    const state = getState();
+    const postIds = state.post.posts.map((post) => post.id)
+    if (postIds.length) {
+      dto.notIn = postIds;
+    }
+    console.log(dto);
+
     const posts = await fetchTimeline__api(dto);
     if (!posts) return false;
     dispatch(postSlice.actions.setPosts({ posts }));

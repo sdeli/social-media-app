@@ -4,9 +4,9 @@ import { createQueryString, httpClient } from './httpClient';
 const urlBase = '/api/post'
 
 export const fetchTimeline__api = async (dto: GetPostsDto) => {
-  const url = `${urlBase}?page=${dto.page}&user=${dto.user}`
+  const url = `${urlBase}/get`
   try {
-    const response = await httpClient.get<PostDto[]>(url);
+    const response = await httpClient.post<PostDto[]>(url, dto);
     const posts = response.data as PostDto[]
     return posts;
   } catch (error: any) {
