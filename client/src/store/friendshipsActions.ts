@@ -8,7 +8,6 @@ import { acceptFriendshipRequests__api, getAllFriendships__api, getPossibleFrien
 
 export const fetchPossibleFriendsAction = (dto: GetPossibleFriendsDto): ThunkAction<Promise<UserDto[] | false>, RootState, unknown, AnyAction> => async (dispatch, getState) => {
   try {
-    debugger
     const state = getState();
     const friendIds = state.friendships.possibleFriends.map((friend) => friend.id)
     if (friendIds.length) {

@@ -7,6 +7,6 @@ export const FriendDetail = () => {
   const { state } = useLocation();
 
   return (
-    <UserPosts id={id} name={state.name} picture={state.picture} />
+    <UserPosts />
   );
 };

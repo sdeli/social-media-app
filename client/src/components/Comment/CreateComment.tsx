@@ -7,20 +7,22 @@ import { Media } from "../Media";
 import { UserData } from "../Posts/Post";
 import { UploadMedia } from "../UploadMedia";
 import { postComment__api } from '../../api/commentApi';
-import { CommentDto, PostCommentDto } from '../../types';
+import { CommentDto, MediaFileType, PostCommentDto } from '../../types';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../store/userSlice';
+import { useAppDispatch } from '../../store/hooks';
+import { addCommentAction } from '../../store/postActions';
 
 interface Props {
   postId: number;
-  commentCreated: (comment: CommentDto) => void;
 }
 
-export const CreateComment = ({ postId, commentCreated }: Props) => {
+export const CreateComment = ({ postId }: Props) => {
+  const dispatch = useAppDispatch();
   const user = useSelector(selectUser);
   const [content, setContent] = useState("");
 
-  const [media, setMedia] = useState<{ type: string; media: Blob } | null>();
+  const [media, setMedia] = useState<MediaFileType>();
   const [mediaPath, setMediaPath] = useState<null | string>(null);
 
   const createHandler = (e: React.KeyboardEvent) => {
@@ -35,10 +37,7 @@ export const CreateComment = ({ postId, commentCreated }: Props) => {
         dto.media = media?.media;
       }
 
-      postComment__api(dto)
-        .then(comment => {
-          commentCreated(comment as CommentDto)
-        })
+      dispatch(addCommentAction(dto))
       setContent("");
       setMedia(null);
       setMediaPath("");
@@ -74,7 +73,6 @@ export const CreateComment = ({ postId, commentCreated }: Props) => {
           placeholder={`Write your comment`}
         ></TextareaAutosize>
         <UploadMedia
-          // @ts-ignore
           setMedia={setMedia}
           size="small"
           setMediaPath={setMediaPath}

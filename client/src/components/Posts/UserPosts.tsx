@@ -9,12 +9,6 @@ import { useScrollFetchRest } from '../../hooks/useScrollFetchRest';
 import { PostDto } from '../../types';
 import { selectPosts } from '../../store/postSlice';
 
-interface Props {
-  id?: string;
-  name?: string;
-  picture?: string;
-}
-
 export const UserPosts = () => {
   const { id, username, picture } = useSelector((state: RootState) => state.user);
   const posts = useSelector(selectPosts);

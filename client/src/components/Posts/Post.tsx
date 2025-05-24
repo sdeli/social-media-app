@@ -132,15 +132,8 @@ const PostDisplay = ({
   const currentUser = useSelector(selectUser);
   const [showCreateComment, setShowCreateComment] = useState(mode === PostDisplayType.FULL);
   const [commentsAdded, setCommentsAdded] = useState<CommentDto[]>([]);
-  const [lastComment, setLastComment] = useState<CommentDto | null>(post.comments[0] || null);
   const [comments] = useState<CommentDto[] | null>(getComments(post));
-
-  const commentCreated = (comment: CommentDto) => {
-    setLastComment(comment);
-    if (IS_FULL_MODE) {
-      setCommentsAdded([comment, ...commentsAdded]);
-    }
-  };
+  const lastComment = post.comments[0];
 
   function getComments(post: PostDto) {
     if (post.comments.length > 0) {
@@ -294,27 +287,18 @@ const PostDisplay = ({
           ))}
 
           {IS_FULL_MODE && comments && getCommentElems(comments)}
-
-          {noMoreData === false && (
-            <Typography
-              textAlign="center"
-              fontSize={12}
-              ref={refAnchor}
-            >
-              Loading ...
-            </Typography>
-          )}
         </CardContent>
 
       </Box>
+
       {(showCreateComment || IS_FULL_MODE) && (
-        <Container>
+        <Container style={{ paddingBottom: '20px' }}>
           <CreateComment
             postId={post.id}
-            commentCreated={commentCreated}
           />
         </Container>
-      )}
-    </Card>
+      )
+      }
+    </Card >
   );
 };

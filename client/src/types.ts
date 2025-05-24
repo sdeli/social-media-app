@@ -185,3 +185,5 @@ export enum OnlineStatusType {
   Away = 'away',
   Busy = 'busy',
 }
+
+export type MediaFileType = { type: string; media: File } | null | undefined;

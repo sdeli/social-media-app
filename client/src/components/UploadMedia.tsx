@@ -1,12 +1,13 @@
 import { AddAPhoto } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
+import { MediaFileType } from '../types';
 
 interface Props {
   size?: "small" | "medium" | "large";
   setMediaPath: Dispatch<SetStateAction<string | null>>;
   setMedia: Dispatch<
-    SetStateAction<{ type: string; media: File } | null | undefined>
+    SetStateAction<MediaFileType>
   >;
 }
 
