@@ -5,10 +5,12 @@ import { useState } from "react";
 import axios from "../axios";
 import { Link, useNavigate } from "react-router-dom";
 import { css } from "@emotion/css";
-import { logout } from "./../store/userSlice";
+import { logout, selectUser } from "./../store/userSlice";
 
 export const AvatarMenu = () => {
-  const user = useSelector((state: RootState) => state.user);
+  const user = useSelector(selectUser);
+  console.log('user')
+  console.log(user);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -34,7 +36,10 @@ export const AvatarMenu = () => {
           <p style={{ fontSize: '16px', margin: '0px' }}>{user.username}</p>
           <p style={{ fontSize: '16px', margin: '0px' }}>{user.email}</p>
         </div>
-        <Avatar src={user.picture} />
+        {
+          user.picture &&
+          <Avatar src={user.picture} />
+        }
       </IconButton>
       <Menu
         open={Boolean(anchorEl)}

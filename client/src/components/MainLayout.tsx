@@ -12,6 +12,7 @@ import { RootState } from "../store/store";
 import { setupSocket } from "../socket/setupSocket";
 import { closeNotification, setTotalUnread } from "../store/messageSlice";
 import { setupWebRTC } from "../socket/setupWebRTC";
+import { selectUser } from '../store/userSlice';
 
 
 const GET_TOTAL_UNREAD = gql`
@@ -23,7 +24,8 @@ const GET_TOTAL_UNREAD = gql`
 `;
 
 const MainLayout = () => {
-  const { user, message, call } = useSelector((state: RootState) => state);
+  const user = useSelector(selectUser);
+  const { message, call } = useSelector((state: RootState) => state);
   const navigate = useNavigate();
 
 

@@ -31,8 +31,8 @@ export const Auth = ({
   const user = useSelector(selectUser);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
-  if (user.id) {
+
+  if (user) {
     navigate("/");
   }
   const [backendError, setBackendError] = useState("");

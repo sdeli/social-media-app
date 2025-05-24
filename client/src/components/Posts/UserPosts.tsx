@@ -8,9 +8,10 @@ import { Post } from "./Post";
 import { useScrollFetchRest } from '../../hooks/useScrollFetchRest';
 import { PostDto } from '../../types';
 import { selectPosts } from '../../store/postSlice';
+import { selectUser } from '../../store/userSlice';
 
 export const UserPosts = () => {
-  const { id, username, picture } = useSelector((state: RootState) => state.user);
+  const { id, username, picture } = useSelector(selectUser);
   const posts = useSelector(selectPosts);
   const userId = id;
   const scrollEl = useRef(null);
@@ -35,7 +36,7 @@ export const UserPosts = () => {
           mb: 4,
         }}
       >
-        <Avatar src={picture} sx={{ width: "60px", height: "60px" }} />
+        <Avatar src={picture || ''} sx={{ width: "60px", height: "60px" }} />
         <Typography ml={2} fontSize={18}>
           {username}
         </Typography>

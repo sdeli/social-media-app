@@ -7,10 +7,7 @@ export enum OnlineStatus {
   Disconnected = "disconnected",
 }
 export interface UserState {
-  id: string;
-  username: string;
-  picture: string;
-  email: string;
+  user: UserDto
   friendsStatus: Status[];
 }
 
@@ -28,14 +25,12 @@ const userSlice = createSlice({
   reducers: {
     setProfile: (state, action: PayloadAction<{ dto: UserDto }>) => {
       const dto = action.payload.dto
-      return {
-        ...state,
-        name: dto.username || '',
-        picture: dto.picture || state.picture
-      };
+      state.user.username = dto.username || state.user.username;
+      state.user.picture = dto.picture || state.user.picture;
+      state.user.email = dto.email || state.user.email;
     },
     setCurrentUser: (state, { payload }) => {
-      return { ...state, ...payload };
+      state.user = { ...state, ...payload };
     },
     logout() {
       return undefined;
@@ -57,4 +52,4 @@ export default userSlice.reducer;
 export const { setCurrentUser, setFriendsStatus, setUserStatus, logout, setProfile } =
   userSlice.actions;
 
-export const selectUser = (state: RootState) => state.user;
+export const selectUser = (state: RootState) => state.user.user;

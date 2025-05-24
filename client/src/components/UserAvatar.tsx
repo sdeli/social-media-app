@@ -11,9 +11,9 @@ export const UserAvatar = ({
   id?: string;
   picture?: string;
 }) => {
-  const status = useSelector((state: RootState) =>
-    state.user?.friendsStatus.find((status: Status) => status.userId === id)
-  );
+  // const status = useSelector((state: RootState) =>
+  //   state.user?.friendsStatus.find((status: Status) => status.userId === id)
+  // );
 
   return (
     <Box>
@@ -31,10 +31,10 @@ export const UserAvatar = ({
             borderRadius: "50%",
             width: "10px",
             height: "10px",
-            background:
-              status?.status === OnlineStatus.Connected
-                ? "green"
-                : "gray",
+            background: "gray"
+            // status?.status === OnlineStatus.Connected
+            //   ? "green"
+            //   : "gray",
           }}
         ></Box>
       </Box>

@@ -4,18 +4,18 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import { useState } from "react";
 import { gql } from "@apollo/client";
-import { setProfile } from "../store/userSlice";
+import { selectUser, setProfile } from "../store/userSlice";
 import { editUser__api } from '../api/userApi';
 import { EditUserDto } from '../types';
 
 export const EditProfile = () => {
-  const user = useSelector((state: RootState) => state.user);
+  const user = useSelector(selectUser);
   const [isLoading, setIsloading] = useState<boolean>(false);
 
   const [pictureUrl, setPictureUrl] = useState(user.picture);
   const [pictureFile, setPictureFile] = useState<Blob | null>(null);
   const [formState, setFormState] = useState<EditUserDto>({
-    name: user.username,
+    name: user.username || 'Anonymus',
     prevPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -126,7 +126,7 @@ export const EditProfile = () => {
           sx={{ marginInlineEnd: "20%", cursor: "pointer" }}
           htmlFor="picture"
         >
-          <Avatar src={pictureUrl} />
+          <Avatar src={pictureUrl || ""} />
         </FormLabel>
         <input
           type="file"
